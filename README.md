@@ -1,10 +1,13 @@
-# releases
+# vcs
 
-Go library for interacting with VCS releases. Mainly centered around artifact extraction, version resolving and fetching releases.
+Go libraries for interacting with Version Control Systems (vcs).
+Primarily oriented around resolving versions, interacting with Git,
+and downloading releases.
 
-## What's supported today?
+## Supported VCS
 
-Currently, only Github is supported today. But, Gitlab support may be added later.
+* Github
+* **Coming Soon** Gitlab
 
 ## License
 
