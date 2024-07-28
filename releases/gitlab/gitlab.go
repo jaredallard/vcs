@@ -48,6 +48,10 @@ func assetToFileInfo(rl *gogitlab.ReleaseLink) os.FileInfo {
 
 // createClient creates a Gitlab client
 func (f *Fetcher) createClient(token *token.Token) (*gogitlab.Client, error) {
+	if token.IsUnauthenticated() {
+		return gogitlab.NewClient("")
+	}
+
 	var client *gogitlab.Client
 	var err error
 	switch token.Type {

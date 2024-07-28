@@ -34,6 +34,11 @@ type Token struct {
 	Type string
 }
 
+// IsUnauthenticated returns true if the token is empty.
+func (t *Token) IsUnauthenticated() bool {
+	return t.Value == ""
+}
+
 // String returns a redacted version of the token to prevent accidental
 // logging.
 func (t *Token) String() string {

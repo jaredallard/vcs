@@ -71,7 +71,7 @@ func getOrgRepoFromURL(URL string) (string, string, error) {
 // createClient creates a Github client
 func (f *Fetcher) createClient(ctx context.Context, token *token.Token) *gogithub.Client {
 	httpClient := http.DefaultClient
-	if token != nil {
+	if !token.IsUnauthenticated() {
 		httpClient = oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token.Value}))
 	}
 	return gogithub.NewClient(httpClient)
