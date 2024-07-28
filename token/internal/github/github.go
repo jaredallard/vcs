@@ -13,33 +13,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package github implements [shared.Provider] for Github.
 package github
 
 import (
-	"errors"
-	"fmt"
-	"os/exec"
 	"strings"
 
 	"github.com/jaredallard/cmdexec"
+	"github.com/jaredallard/vcs/internal/execerr"
+	"github.com/jaredallard/vcs/token/internal/shared"
 )
+
+// Providers is a list of providers that can be used to retrieve a
+// token for Github.
+var Providers = []shared.Provider{
+	&shared.EnvProvider{EnvVars: []shared.EnvVar{{Name: "GITHUB_TOKEN"}, {Name: "GH_TOKEN"}}},
+	&GHProvider{},
+}
 
 // GHProvider implements the [token.Provider] interface using the Github
 // CLI to retrieve a token.
 type GHProvider struct{}
 
 // Token returns a valid token or an error if no token is found.
-func (p *GHProvider) Token() (string, error) {
+func (p *GHProvider) Token() (*shared.Token, error) {
 	cmd := cmdexec.Command("gh", "auth", "token")
 	token, err := cmd.Output()
 	if err != nil {
-		var execErr *exec.ExitError
-		if errors.As(err, &execErr) {
-			return "", fmt.Errorf("gh failed: %s (%w)", string(execErr.Stderr), execErr)
-		}
-
-		return "", fmt.Errorf("gh failed: %w (no stderr)", err)
+		return nil, execerr.From(cmd, err)
 	}
 
-	return strings.TrimSpace(string(token)), nil
+	return &shared.Token{Value: strings.TrimSpace(string(token))}, nil
 }

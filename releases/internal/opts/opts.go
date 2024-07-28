@@ -21,20 +21,25 @@ import (
 	"context"
 	"io"
 	"os"
+
+	"github.com/jaredallard/vcs"
+	"github.com/jaredallard/vcs/token"
 )
 
 // Fetcher is an interface that fetches assets from a release. VCS
 // providers must implement this interface.
 type Fetcher interface {
 	// Fetch returns an asset as a io.ReadCloser
-	Fetch(ctx context.Context, token string, opts *FetchOptions) (io.ReadCloser, os.FileInfo, error)
+	Fetch(ctx context.Context, token *token.Token, opts *FetchOptions) (io.ReadCloser, os.FileInfo, error)
 
 	// GetReleaseNotes returns the release notes of a release
-	GetReleaseNotes(ctx context.Context, token string, opts *GetReleaseNoteOptions) (string, error)
+	GetReleaseNotes(ctx context.Context, token *token.Token, opts *GetReleaseNoteOptions) (string, error)
 }
 
 // FetchOptions is a set of options for Fetch
 type FetchOptions struct {
+	Overrides []vcs.Override
+
 	// RepoURL is the repository URL, it should be a valid
 	// URL.
 	RepoURL string
@@ -53,6 +58,8 @@ type FetchOptions struct {
 
 // GetReleaseNoteOptions is a set of options for GetReleaseNotes
 type GetReleaseNoteOptions struct {
+	Overrides []vcs.Override
+
 	// RepoURL is the repository URL, it should be a valid
 	// URL.
 	RepoURL string

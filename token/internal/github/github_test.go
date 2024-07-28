@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	"github.com/jaredallard/cmdexec"
-	"github.com/jaredallard/vcs/token/github"
+	"github.com/jaredallard/vcs/token"
+	"github.com/jaredallard/vcs/token/internal/github"
 	"gotest.tools/v3/assert"
 )
 
@@ -19,7 +20,7 @@ func TestGhProviderTrimsSpace(t *testing.T) {
 		Stdout: []byte(" token\n"),
 	}))
 
-	token, err := p.Token()
+	got, err := p.Token()
 	assert.NilError(t, err)
-	assert.Equal(t, "token", token)
+	assert.DeepEqual(t, &token.Token{Value: "token"}, got)
 }

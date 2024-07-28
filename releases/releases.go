@@ -24,45 +24,25 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"strings"
 
 	"github.com/jaredallard/vcs"
 	"github.com/jaredallard/vcs/releases/github"
+	"github.com/jaredallard/vcs/releases/gitlab"
 	"github.com/jaredallard/vcs/releases/internal/opts"
+	"github.com/jaredallard/vcs/token"
 )
 
 // fetchers is a map of VCS provider to their respective fetcher.
 var fetchers = map[vcs.Provider]opts.Fetcher{
 	vcs.ProviderGithub: &github.Fetcher{},
+	vcs.ProviderGitlab: &gitlab.Fetcher{},
 }
 
-// FetchOptions is a set of options for Fetch
-type FetchOptions struct {
-	// RepoURL is the repository URL, it should be a valid
-	// URL.
-	RepoURL string
+// GetReleaseNoteOptions is an alias for [opts.GetReleaseNoteOptions].
+type GetReleaseNoteOptions = opts.GetReleaseNoteOptions
 
-	// Tag is the tag of the release
-	Tag string
-
-	// AssetName is the name of the asset to fetch, globs are
-	// supported.
-	AssetName string
-
-	// AssetNames is a list of asset names to fetch, the first
-	// asset that matches will be returned. Globs are supported.
-	AssetNames []string
-}
-
-// GetReleaseNoteOptions is a set of options for GetReleaseNotes
-type GetReleaseNoteOptions struct {
-	// RepoURL is the repository URL, it should be a valid
-	// URL.
-	RepoURL string
-
-	// Tag is the tag of the release
-	Tag string
-}
+// FetchOptions is an alias for [opts.FetchOptions].
+type FetchOptions = opts.FetchOptions
 
 // Client contains configuration for fetching releases from various VCS
 // providers.
@@ -73,7 +53,7 @@ type Client struct{}
 // underlying HTTP request.
 //
 //nolint:gocritic // Why: rc, name, size, error
-func Fetch(ctx context.Context, token string, opts *opts.FetchOptions) (io.ReadCloser, fs.FileInfo, error) {
+func Fetch(ctx context.Context, opts *FetchOptions) (io.ReadCloser, fs.FileInfo, error) {
 	if opts == nil {
 		return nil, nil, fmt.Errorf("opts is nil")
 	}
@@ -86,15 +66,25 @@ func Fetch(ctx context.Context, token string, opts *opts.FetchOptions) (io.ReadC
 		return nil, nil, fmt.Errorf("tag is required")
 	}
 
-	if strings.Contains(opts.RepoURL, "github.com") {
-		return fetchers[vcs.ProviderGithub].Fetch(ctx, token, opts)
+	vcsp, err := vcs.ProviderFromURL(opts.RepoURL, opts.Overrides)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get VCS provider from URL: %w", err)
 	}
 
-	return nil, nil, fmt.Errorf("unsupported fetch repo url: %s", opts.RepoURL)
+	token, err := token.Fetch(ctx, vcsp, true)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to fetch token: %w", err)
+	}
+
+	if fetcher, ok := fetchers[vcsp]; ok {
+		return fetcher.Fetch(ctx, token, opts)
+	}
+
+	return nil, nil, fmt.Errorf("unknown VCS provider %s", vcsp)
 }
 
 // GetReleaseNotes fetches the release notes of a release from a VCS provider.
-func GetReleaseNotes(ctx context.Context, token string, opts *opts.GetReleaseNoteOptions) (string, error) {
+func GetReleaseNotes(ctx context.Context, opts *GetReleaseNoteOptions) (string, error) {
 	if opts == nil {
 		return "", fmt.Errorf("opts is nil")
 	}
@@ -107,9 +97,19 @@ func GetReleaseNotes(ctx context.Context, token string, opts *opts.GetReleaseNot
 		return "", fmt.Errorf("tag is required")
 	}
 
-	if strings.Contains(opts.RepoURL, "github.com") {
-		return fetchers[vcs.ProviderGithub].GetReleaseNotes(ctx, token, opts)
+	vcsp, err := vcs.ProviderFromURL(opts.RepoURL, opts.Overrides)
+	if err != nil {
+		return "", fmt.Errorf("failed to get VCS provider from URL: %w", err)
 	}
 
-	return "", fmt.Errorf("unsupported get release notes repo url: %s", opts.RepoURL)
+	token, err := token.Fetch(ctx, vcsp, true)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch token: %w", err)
+	}
+
+	if fetcher, ok := fetchers[vcsp]; ok {
+		return fetcher.GetReleaseNotes(ctx, token, opts)
+	}
+
+	return "", fmt.Errorf("unknown VCS provider %s", vcsp)
 }

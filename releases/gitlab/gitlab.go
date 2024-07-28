@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package github implements [opts.Fetcher] for Github releases.
-package github
+// Package gitlab implements [opts.Fetcher] for Gitlab releases.
+package gitlab
 
 import (
 	"context"
@@ -25,89 +25,92 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
-	gogithub "github.com/google/go-github/v63/github"
 	"github.com/jaredallard/vcs/internal/fileinfo"
 	"github.com/jaredallard/vcs/releases/internal/opts"
 	"github.com/jaredallard/vcs/token"
-	"golang.org/x/oauth2"
+	gogitlab "github.com/xanzy/go-gitlab"
 )
 
 // _ is a compile-time assertion that Fetcher implements the
 // [opts.Fetcher] interface.
 var _ opts.Fetcher = &Fetcher{}
 
-// Fetcher implements the [releases.Fetcher] interface for Github releases.
+// Fetcher implements the [releases.Fetcher] interface for Gitlab releases.
 type Fetcher struct{}
 
 // assetToFileInfo creates a type that satisfies [os.FileInfo] from the
-// given [gogithub.ReleaseAsset].
-func assetToFileInfo(a *gogithub.ReleaseAsset) os.FileInfo {
-	modTime := a.UpdatedAt.Time
-	if modTime.IsZero() {
-		modTime = a.CreatedAt.Time
-	}
-
-	return fileinfo.New(a.GetName(), int64(a.GetSize()), modTime, a)
+// given [gogitlab.ReleaseLink].
+func assetToFileInfo(rl *gogitlab.ReleaseLink) os.FileInfo {
+	return fileinfo.New(rl.Name, 0, time.Time{}, rl)
 }
 
-// getOrgRepoFromURL returns the org and repo from a URL:
-//
-// Example: https://github.com/rgst-io/stencil
-func getOrgRepoFromURL(URL string) (string, string, error) {
-	u, err := url.Parse(URL)
+// createClient creates a Gitlab client
+func (f *Fetcher) createClient(token *token.Token) (*gogitlab.Client, error) {
+	var client *gogitlab.Client
+	var err error
+	switch token.Type {
+	case "pat", "": // Default is PAT.
+		client, err = gogitlab.NewClient(token.Value)
+	case "job":
+		client, err = gogitlab.NewJobClient(token.Value)
+	default:
+		return nil, fmt.Errorf("unknown token type %s", token.Type)
+	}
+	return client, err
+}
+
+// getPIDFromRepoURL returns the project ID from a given repository URL.
+func (f *Fetcher) getPIDFromRepoURL(repoURL string, glab *gogitlab.Client) (int, error) {
+	u, err := url.Parse(repoURL)
 	if err != nil {
-		return "", "", err
+		return 0, err
 	}
 
-	// /rgst-io/stencil -> ["", "rgst-io", "stencil"]
-	spl := strings.Split(u.Path, "/")
-	if len(spl) != 3 {
-		return "", "", fmt.Errorf("invalid Github URL: %s", URL)
+	proj, _, err := glab.Projects.GetProject(strings.TrimPrefix(u.Path, "/"), nil)
+	if err != nil {
+		return 0, err
 	}
-	return spl[1], spl[2], nil
-}
 
-// createClient creates a Github client
-func (f *Fetcher) createClient(ctx context.Context, token *token.Token) *gogithub.Client {
-	httpClient := http.DefaultClient
-	if token != nil {
-		httpClient = oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token.Value}))
-	}
-	return gogithub.NewClient(httpClient)
+	return proj.ID, nil
 }
 
 // GetReleaseNotes returns the release notes for a given tag
 func (f *Fetcher) GetReleaseNotes(ctx context.Context, token *token.Token, opts *opts.GetReleaseNoteOptions) (string, error) {
-	gh := f.createClient(ctx, token)
-	friendlyRepo := strings.TrimPrefix(opts.RepoURL, "https://")
-
-	org, repo, err := getOrgRepoFromURL(opts.RepoURL)
+	glab, err := f.createClient(token)
 	if err != nil {
 		return "", err
 	}
 
-	rel, _, err := gh.Repositories.GetReleaseByTag(ctx, org, repo, opts.Tag)
+	friendlyRepo := strings.TrimPrefix(opts.RepoURL, "https://")
+	pid, err := f.getPIDFromRepoURL(opts.RepoURL, glab)
+	if err != nil {
+		return "", err
+	}
+
+	rel, _, err := glab.Releases.GetRelease(pid, opts.Tag)
 	if err != nil {
 		return "", fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opts.Tag, err)
 	}
-
-	return rel.GetBody(), nil
+	return rel.Description, nil
 }
 
 // Fetch fetches a release from a github repository and the underlying
 // release asset.
 func (f *Fetcher) Fetch(ctx context.Context, token *token.Token, opts *opts.FetchOptions) (io.ReadCloser, os.FileInfo, error) {
-	gh := f.createClient(ctx, token)
-
-	friendlyRepo := strings.TrimPrefix(opts.RepoURL, "https://")
-
-	org, repo, err := getOrgRepoFromURL(opts.RepoURL)
+	glab, err := f.createClient(token)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rel, _, err := gh.Repositories.GetReleaseByTag(ctx, org, repo, opts.Tag)
+	friendlyRepo := strings.TrimPrefix(opts.RepoURL, "https://")
+	pid, err := f.getPIDFromRepoURL(opts.RepoURL, glab)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	rel, _, err := glab.Releases.GetRelease(pid, opts.Tag)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opts.Tag, err)
 	}
@@ -120,37 +123,43 @@ func (f *Fetcher) Fetch(ctx context.Context, token *token.Token, opts *opts.Fetc
 	}
 
 	// Find an asset that matches the provided asset names
-	var a *gogithub.ReleaseAsset
-	for _, asset := range rel.Assets {
+	var rl *gogitlab.ReleaseLink
+	for _, relLink := range rel.Assets.Links {
 		for _, assetName := range validAssets {
 			matched := false
 
 			// attempt to use glob first, if that errors then fall back to
 			// straight strings comparison
-			if match, err := filepath.Match(assetName, asset.GetName()); err == nil {
+			if match, err := filepath.Match(assetName, relLink.Name); err == nil {
 				matched = match
-			} else if assetName == asset.GetName() {
+			} else if assetName == relLink.Name {
 				matched = true
 			}
 
 			if matched {
-				a = asset
+				rl = relLink
 				break
 			}
 		}
 	}
-	if a == nil {
+	if rl == nil {
 		return nil, nil,
 			fmt.Errorf("failed to find asset %v in release %s@%s", validAssets, friendlyRepo, opts.Tag)
 	}
 
-	// The second return value is a redirectURL, but by passing
-	// http.DefaultClient we shouldn't have to handle it.
-	rc, _, err := gh.Repositories.DownloadReleaseAsset(ctx, org, repo, a.GetID(), http.DefaultClient)
+	// Download the asset
+	req, err := http.NewRequest(http.MethodGet, rl.DirectAssetURL, http.NoBody)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create request to download asset: %w", err)
+	}
+	// TODO(jaredallard): Gitlab's auth system is awful, so job token
+	// won't _just work_. We'll eventually need to support it.
+	req.Header.Set("PRIVATE-TOKEN", token.Value)
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, nil,
-			fmt.Errorf("failed to download asset %s from release %s@%s: %w", a.GetName(), friendlyRepo, opts.Tag, err)
+			fmt.Errorf("failed to download asset %s from release %s@%s: %w", rl.Name, friendlyRepo, opts.Tag, err)
 	}
-
-	return rc, assetToFileInfo(a), nil
+	return resp.Body, assetToFileInfo(rl), nil
 }

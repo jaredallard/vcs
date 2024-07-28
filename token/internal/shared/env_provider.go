@@ -13,25 +13,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package github
+package shared
 
 import (
 	"fmt"
 	"os"
 )
 
+// EnvVar is a struct that represents an environment variable that can
+// contain a VCS token.
+type EnvVar struct {
+	// Name is the name of the environment variable.
+	Name string
+
+	// Type is an optional field that denotes what type of token this.
+	Type string
+}
+
 // EnvProvider implements the [token.Provider] interface using the
 // environment variables to retrieve a token.
-type EnvProvider struct{}
+type EnvProvider struct {
+	// EnvVars is a list of environment variables to check for a token.
+	EnvVars []EnvVar
+}
 
 // Token returns a valid token or an error if no token is found.
-func (p *EnvProvider) Token() (string, error) {
-	envVars := []string{"GITHUB_TOKEN"}
-	for _, env := range envVars {
-		if token := os.Getenv(env); token != "" {
-			return token, nil
+func (p *EnvProvider) Token() (*Token, error) {
+	for _, env := range p.EnvVars {
+		if token := os.Getenv(env.Name); token != "" {
+			return &Token{
+				Value: token,
+				Type:  env.Type,
+			}, nil
 		}
 	}
 
-	return "", fmt.Errorf("no token found in environment variables: %v", envVars)
+	return nil, fmt.Errorf("no token found in environment variables: %v", p.EnvVars)
 }

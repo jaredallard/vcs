@@ -15,8 +15,8 @@ import (
 // provider to get the token.
 func TestCanGetToken(t *testing.T) {
 	t.Setenv("GITHUB_TOKEN", time.Now().String())
-	authToken, err := token.Fetch(context.Background(), vcs.ProviderGithub)
+	authToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false)
 	assert.NilError(t, err)
-	assert.Assert(t, authToken != "")
-	assert.Equal(t, authToken, os.Getenv("GITHUB_TOKEN"), "expected the token to be the same as the env var")
+	assert.Assert(t, authToken != nil, "expected a token to be returned")
+	assert.DeepEqual(t, authToken, &token.Token{Value: os.Getenv("GITHUB_TOKEN")})
 }
