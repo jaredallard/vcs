@@ -17,6 +17,7 @@
 package gitlab
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jaredallard/cmdexec"
@@ -53,17 +54,22 @@ type GlabProvider struct{}
 func (p *GlabProvider) Token() (*shared.Token, error) {
 	// determine the host from glab
 	cmd := cmdexec.Command("glab", "config", "get", "-g", "host")
-	out, err := cmd.Output()
+	b, err := cmd.Output()
 	if err != nil {
 		return nil, execerr.From(cmd, err)
 	}
-	host := strings.TrimSpace(string(out))
+	host := strings.TrimSpace(string(b))
 
 	cmd = cmdexec.Command("glab", "config", "get", "-g", "token", "-h", host)
-	token, err := cmd.Output()
+	b, err = cmd.Output()
 	if err != nil {
 		return nil, execerr.From(cmd, err)
 	}
 
-	return &shared.Token{Value: strings.TrimSpace(string(token))}, nil
+	token := strings.TrimSpace(string(b))
+	if token == "" {
+		return nil, fmt.Errorf("no token returned")
+	}
+
+	return &shared.Token{Value: token}, nil
 }

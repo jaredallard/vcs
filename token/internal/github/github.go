@@ -17,6 +17,7 @@
 package github
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jaredallard/cmdexec"
@@ -38,10 +39,15 @@ type GHProvider struct{}
 // Token returns a valid token or an error if no token is found.
 func (p *GHProvider) Token() (*shared.Token, error) {
 	cmd := cmdexec.Command("gh", "auth", "token")
-	token, err := cmd.Output()
+	b, err := cmd.Output()
 	if err != nil {
 		return nil, execerr.From(cmd, err)
 	}
 
-	return &shared.Token{Value: strings.TrimSpace(string(token))}, nil
+	token := strings.TrimSpace(string(b))
+	if token == "" {
+		return nil, fmt.Errorf("no token returned from 'gh auth token'")
+	}
+
+	return &shared.Token{Value: token}, nil
 }
