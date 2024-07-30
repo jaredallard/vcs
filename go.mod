@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/google/go-github/v63 v63.0.0
-	github.com/jaredallard/cmdexec v1.0.0
+	github.com/jaredallard/cmdexec v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/xanzy/go-gitlab v0.107.0
 	golang.org/x/oauth2 v0.21.0
