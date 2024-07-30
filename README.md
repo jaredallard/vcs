@@ -6,8 +6,8 @@ and downloading releases.
 
 ## Supported VCS
 
-* Github
-* **Coming Soon** Gitlab
+- Github
+- Gitlab
 
 ## License
 
