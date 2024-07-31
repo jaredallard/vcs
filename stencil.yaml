@@ -1,6 +1,6 @@
-name: releases
+name: vcs
 arguments:
-  license: GPL-3.0
+  license: LGPL-3.0
   library: true
   org: jaredallard
 modules:

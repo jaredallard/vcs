@@ -1,6 +1,6 @@
 {
 	"//": "Used for prettier",
-	"name": "@jaredallard/releases",
+	"name": "@jaredallard/vcs",
 	"devDependencies": {
 		"prettier": "^3.3.2"
 	},
