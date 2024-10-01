@@ -7,7 +7,7 @@ require (
 	github.com/google/go-github/v63 v63.0.0
 	github.com/jaredallard/cmdexec v1.2.1
 	github.com/pkg/errors v0.9.1
-	github.com/xanzy/go-gitlab v0.107.0
+	github.com/xanzy/go-gitlab v0.109.0
 	golang.org/x/oauth2 v0.21.0
 	gotest.tools/v3 v3.5.1
 )
