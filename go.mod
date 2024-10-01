@@ -3,7 +3,7 @@ module github.com/jaredallard/vcs
 go 1.22
 
 require (
-	github.com/Masterminds/semver/v3 v3.2.1
+	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/google/go-github/v63 v63.0.0
 	github.com/jaredallard/cmdexec v1.2.1
 	github.com/pkg/errors v0.9.1
