@@ -84,8 +84,8 @@ func Clone(ctx context.Context, ref, url string) (string, error) {
 	}
 	for _, cmd := range cmds {
 		//nolint:gosec // Why: Commands are not user provided.
-		c := exec.CommandContext(ctx, cmd[0], cmd[1:]...)
-		c.Dir = tempDir
+		c := cmdexec.CommandContext(ctx, cmd[0], cmd[1:]...)
+		c.SetDir(tempDir)
 		if err := c.Run(); err != nil {
 			var execErr *exec.ExitError
 			if errors.As(err, &execErr) {
