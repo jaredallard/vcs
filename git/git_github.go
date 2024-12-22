@@ -85,7 +85,6 @@ func cloneArchiveGithub(ctx context.Context, ref, sourceURL, tempDir string) (st
 	// Select the first directory in the tempDir.
 	var dir string
 	for _, f := range files {
-		fmt.Println(f.Name())
 		if !f.IsDir() {
 			continue
 		}
