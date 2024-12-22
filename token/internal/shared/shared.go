@@ -22,6 +22,7 @@ package shared
 
 import (
 	"strings"
+	"time"
 )
 
 // Token is a VCS token that can be used for API access.
@@ -29,6 +30,9 @@ import (
 // Do not use the 'shared.Token' type, instead use [token.Token] which
 // is an alias to this type.
 type Token struct {
+	// FetchedAt is the time that the token was fetched at.
+	FetchedAt time.Time
+
 	// Value is the token value.
 	Value string
 
@@ -54,6 +58,15 @@ func (t *Token) String() string {
 	// otherwise return the full token, but this is probably an invalid
 	// token.
 	return t.Value
+}
+
+// Clone returns a deep clone of the token.
+func (t *Token) Clone() *Token {
+	return &Token{
+		FetchedAt: t.FetchedAt,
+		Value:     t.Value,
+		Type:      t.Type,
+	}
 }
 
 // Provider is an interface for VCS providers to implement to provide a
