@@ -40,4 +40,15 @@ func TestGit(t *testing.T) {
 		assert.NilError(t, err)
 		assert.Assert(t, len(remotes) > 0, "expected at least one remote")
 	})
+
+	t.Run("Clone_Opts_UseArchive", func(t *testing.T) {
+		t.Parallel()
+
+		dir, err := git.Clone(ctx, "v0.2.0", "https://github.com/jaredallard/vcs", &git.CloneOptions{UseArchive: true})
+		assert.NilError(t, err)
+
+		// ensure .git does not exist in the directory
+		_, err = os.Stat(filepath.Join(dir, ".git"))
+		assert.ErrorContains(t, err, "no such file or directory")
+	})
 }

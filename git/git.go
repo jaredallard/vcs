@@ -32,6 +32,7 @@ import (
 	"strings"
 
 	"github.com/jaredallard/cmdexec"
+	"github.com/jaredallard/vcs"
 	"github.com/pkg/errors"
 )
 
@@ -67,13 +68,52 @@ func GetDefaultBranch(ctx context.Context, path string) (string, error) {
 	return matches[1], nil
 }
 
+// CloneOptions contains options accepted by [Clone].
+type CloneOptions struct {
+	// UseArchive fetches the references using a tarball from the
+	// underlying VCS provider. This comes with the caveat that the
+	// downloaded tarball will not contain the .git directory. However,
+	// this can be much faster to download than a full clone.
+	//
+	// Currently, only Github URLs are supported.
+	//
+	// If this option fails, a normal clone will be performed without an
+	// error.
+	UseArchive bool
+}
+
 // Clone clone a git repository to a temporary directory and returns the
 // path to the repository. If ref is empty, the default branch will be
 // used. A shallow clone is performed.
-func Clone(ctx context.Context, ref, url string) (string, error) {
+//
+// optss is a variadic argument only to avoid a breaking change. Only
+// one option struct is allowed, an error will be returned if more than
+// one is provided.
+func Clone(ctx context.Context, ref, url string, optss ...*CloneOptions) (string, error) {
 	tempDir, err := os.MkdirTemp("", strings.ReplaceAll(url, "/", "-"))
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create temporary directory")
+	}
+
+	// Read opts from the variadic argument. We use a variadic argument
+	// here to avoid a breaking change when this variable was added.
+	var opts CloneOptions
+	if len(optss) == 1 {
+		if optss[0] != nil {
+			opts = *optss[0]
+		}
+	} else if len(optss) > 1 {
+		return "", fmt.Errorf("too many options provided")
+	}
+
+	if opts.UseArchive {
+		provider, err := vcs.ProviderFromURL(url, nil)
+		if err == nil && provider == vcs.ProviderGithub {
+			tmpDir, err := cloneArchiveGithub(ctx, ref, url, tempDir)
+			if err == nil {
+				return tmpDir, nil
+			}
+		}
 	}
 
 	cmds := [][]string{

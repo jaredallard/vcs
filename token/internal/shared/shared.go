@@ -51,7 +51,7 @@ func (t *Token) String() string {
 		return prefix + strings.Repeat("*", len(t.Value)-4)
 	}
 
-	// other wise return the full token, but this is probably an invalid
+	// otherwise return the full token, but this is probably an invalid
 	// token.
 	return t.Value
 }
