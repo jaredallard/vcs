@@ -57,8 +57,8 @@ func assetToFileInfo(a *gogithub.ReleaseAsset) os.FileInfo {
 // getOrgRepoFromURL returns the org and repo from a URL:
 //
 // Example: https://github.com/rgst-io/stencil
-func getOrgRepoFromURL(URL string) (string, string, error) {
-	u, err := url.Parse(URL)
+func getOrgRepoFromURL(urlStr string) (owner, repo string, err error) {
+	u, err := url.Parse(urlStr)
 	if err != nil {
 		return "", "", err
 	}
@@ -66,33 +66,33 @@ func getOrgRepoFromURL(URL string) (string, string, error) {
 	// /rgst-io/stencil -> ["", "rgst-io", "stencil"]
 	spl := strings.Split(u.Path, "/")
 	if len(spl) != 3 {
-		return "", "", fmt.Errorf("invalid Github URL: %s", URL)
+		return "", "", fmt.Errorf("invalid Github URL: %s", urlStr)
 	}
 	return spl[1], spl[2], nil
 }
 
 // createClient creates a Github client
-func (f *Fetcher) createClient(ctx context.Context, token *token.Token) *gogithub.Client {
+func (f *Fetcher) createClient(ctx context.Context, t *token.Token) *gogithub.Client {
 	httpClient := http.DefaultClient
-	if !token.IsUnauthenticated() {
-		httpClient = oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token.Value}))
+	if !t.IsUnauthenticated() {
+		httpClient = oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t.Value}))
 	}
 	return gogithub.NewClient(httpClient)
 }
 
 // GetReleaseNotes returns the release notes for a given tag
-func (f *Fetcher) GetReleaseNotes(ctx context.Context, token *token.Token, opts *opts.GetReleaseNoteOptions) (string, error) {
-	gh := f.createClient(ctx, token)
-	friendlyRepo := strings.TrimPrefix(opts.RepoURL, "https://")
+func (f *Fetcher) GetReleaseNotes(ctx context.Context, t *token.Token, opt *opts.GetReleaseNoteOptions) (string, error) {
+	gh := f.createClient(ctx, t)
+	friendlyRepo := strings.TrimPrefix(opt.RepoURL, "https://")
 
-	org, repo, err := getOrgRepoFromURL(opts.RepoURL)
+	org, repo, err := getOrgRepoFromURL(opt.RepoURL)
 	if err != nil {
 		return "", err
 	}
 
-	rel, _, err := gh.Repositories.GetReleaseByTag(ctx, org, repo, opts.Tag)
+	rel, _, err := gh.Repositories.GetReleaseByTag(ctx, org, repo, opt.Tag)
 	if err != nil {
-		return "", fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opts.Tag, err)
+		return "", fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opt.Tag, err)
 	}
 
 	return rel.GetBody(), nil
@@ -100,26 +100,26 @@ func (f *Fetcher) GetReleaseNotes(ctx context.Context, token *token.Token, opts 
 
 // Fetch fetches a release from a github repository and the underlying
 // release asset.
-func (f *Fetcher) Fetch(ctx context.Context, token *token.Token, opts *opts.FetchOptions) (io.ReadCloser, os.FileInfo, error) {
-	gh := f.createClient(ctx, token)
+func (f *Fetcher) Fetch(ctx context.Context, t *token.Token, opt *opts.FetchOptions) (io.ReadCloser, os.FileInfo, error) {
+	gh := f.createClient(ctx, t)
 
-	friendlyRepo := strings.TrimPrefix(opts.RepoURL, "https://")
+	friendlyRepo := strings.TrimPrefix(opt.RepoURL, "https://")
 
-	org, repo, err := getOrgRepoFromURL(opts.RepoURL)
+	org, repo, err := getOrgRepoFromURL(opt.RepoURL)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rel, _, err := gh.Repositories.GetReleaseByTag(ctx, org, repo, opts.Tag)
+	rel, _, err := gh.Repositories.GetReleaseByTag(ctx, org, repo, opt.Tag)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opts.Tag, err)
+		return nil, nil, fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opt.Tag, err)
 	}
 
 	// copy the assetNames slice, and append the assetName if it is not
 	// empty
-	validAssets := append([]string{}, opts.AssetNames...)
-	if opts.AssetName != "" {
-		validAssets = append(validAssets, opts.AssetName)
+	validAssets := append([]string{}, opt.AssetNames...)
+	if opt.AssetName != "" {
+		validAssets = append(validAssets, opt.AssetName)
 	}
 
 	// Find an asset that matches the provided asset names
@@ -144,7 +144,7 @@ func (f *Fetcher) Fetch(ctx context.Context, token *token.Token, opts *opts.Fetc
 	}
 	if a == nil {
 		return nil, nil,
-			fmt.Errorf("failed to find asset %v in release %s@%s", validAssets, friendlyRepo, opts.Tag)
+			fmt.Errorf("failed to find asset %v in release %s@%s", validAssets, friendlyRepo, opt.Tag)
 	}
 
 	// The second return value is a redirectURL, but by passing
@@ -152,7 +152,7 @@ func (f *Fetcher) Fetch(ctx context.Context, token *token.Token, opts *opts.Fetc
 	rc, _, err := gh.Repositories.DownloadReleaseAsset(ctx, org, repo, a.GetID(), http.DefaultClient)
 	if err != nil {
 		return nil, nil,
-			fmt.Errorf("failed to download asset %s from release %s@%s: %w", a.GetName(), friendlyRepo, opts.Tag, err)
+			fmt.Errorf("failed to download asset %s from release %s@%s: %w", a.GetName(), friendlyRepo, opt.Tag, err)
 	}
 
 	return rc, assetToFileInfo(a), nil

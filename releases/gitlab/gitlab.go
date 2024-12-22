@@ -50,20 +50,20 @@ func assetToFileInfo(rl *gogitlab.ReleaseLink) os.FileInfo {
 }
 
 // createClient creates a Gitlab client
-func (f *Fetcher) createClient(token *token.Token) (*gogitlab.Client, error) {
-	if token.IsUnauthenticated() {
+func (f *Fetcher) createClient(t *token.Token) (*gogitlab.Client, error) {
+	if t.IsUnauthenticated() {
 		return gogitlab.NewClient("")
 	}
 
 	var client *gogitlab.Client
 	var err error
-	switch token.Type {
+	switch t.Type {
 	case "pat", "": // Default is PAT.
-		client, err = gogitlab.NewClient(token.Value)
+		client, err = gogitlab.NewClient(t.Value)
 	case "job":
-		client, err = gogitlab.NewJobClient(token.Value)
+		client, err = gogitlab.NewJobClient(t.Value)
 	default:
-		return nil, fmt.Errorf("unknown token type %s", token.Type)
+		return nil, fmt.Errorf("unknown token type %s", t.Type)
 	}
 	return client, err
 }
@@ -84,49 +84,49 @@ func (f *Fetcher) getPIDFromRepoURL(repoURL string, glab *gogitlab.Client) (int,
 }
 
 // GetReleaseNotes returns the release notes for a given tag
-func (f *Fetcher) GetReleaseNotes(ctx context.Context, token *token.Token, opts *opts.GetReleaseNoteOptions) (string, error) {
-	glab, err := f.createClient(token)
+func (f *Fetcher) GetReleaseNotes(_ context.Context, t *token.Token, opt *opts.GetReleaseNoteOptions) (string, error) {
+	glab, err := f.createClient(t)
 	if err != nil {
 		return "", err
 	}
 
-	friendlyRepo := strings.TrimPrefix(opts.RepoURL, "https://")
-	pid, err := f.getPIDFromRepoURL(opts.RepoURL, glab)
+	friendlyRepo := strings.TrimPrefix(opt.RepoURL, "https://")
+	pid, err := f.getPIDFromRepoURL(opt.RepoURL, glab)
 	if err != nil {
 		return "", err
 	}
 
-	rel, _, err := glab.Releases.GetRelease(pid, opts.Tag)
+	rel, _, err := glab.Releases.GetRelease(pid, opt.Tag)
 	if err != nil {
-		return "", fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opts.Tag, err)
+		return "", fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opt.Tag, err)
 	}
 	return rel.Description, nil
 }
 
 // Fetch fetches a release from a github repository and the underlying
 // release asset.
-func (f *Fetcher) Fetch(ctx context.Context, token *token.Token, opts *opts.FetchOptions) (io.ReadCloser, os.FileInfo, error) {
-	glab, err := f.createClient(token)
+func (f *Fetcher) Fetch(_ context.Context, t *token.Token, opt *opts.FetchOptions) (io.ReadCloser, os.FileInfo, error) {
+	glab, err := f.createClient(t)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	friendlyRepo := strings.TrimPrefix(opts.RepoURL, "https://")
-	pid, err := f.getPIDFromRepoURL(opts.RepoURL, glab)
+	friendlyRepo := strings.TrimPrefix(opt.RepoURL, "https://")
+	pid, err := f.getPIDFromRepoURL(opt.RepoURL, glab)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rel, _, err := glab.Releases.GetRelease(pid, opts.Tag)
+	rel, _, err := glab.Releases.GetRelease(pid, opt.Tag)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opts.Tag, err)
+		return nil, nil, fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opt.Tag, err)
 	}
 
 	// copy the assetNames slice, and append the assetName if it is not
 	// empty
-	validAssets := append([]string{}, opts.AssetNames...)
-	if opts.AssetName != "" {
-		validAssets = append(validAssets, opts.AssetName)
+	validAssets := append([]string{}, opt.AssetNames...)
+	if opt.AssetName != "" {
+		validAssets = append(validAssets, opt.AssetName)
 	}
 
 	// Find an asset that matches the provided asset names
@@ -151,7 +151,7 @@ func (f *Fetcher) Fetch(ctx context.Context, token *token.Token, opts *opts.Fetc
 	}
 	if rl == nil {
 		return nil, nil,
-			fmt.Errorf("failed to find asset %v in release %s@%s", validAssets, friendlyRepo, opts.Tag)
+			fmt.Errorf("failed to find asset %v in release %s@%s", validAssets, friendlyRepo, opt.Tag)
 	}
 
 	// Download the asset
@@ -161,12 +161,12 @@ func (f *Fetcher) Fetch(ctx context.Context, token *token.Token, opts *opts.Fetc
 	}
 	// TODO(jaredallard): Gitlab's auth system is awful, so job token
 	// won't _just work_. We'll eventually need to support it.
-	req.Header.Set("PRIVATE-TOKEN", token.Value)
+	req.Header.Set("PRIVATE-TOKEN", t.Value)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, nil,
-			fmt.Errorf("failed to download asset %s from release %s@%s: %w", rl.Name, friendlyRepo, opts.Tag, err)
+			fmt.Errorf("failed to download asset %s from release %s@%s: %w", rl.Name, friendlyRepo, opt.Tag, err)
 	}
 	return resp.Body, assetToFileInfo(rl), nil
 }

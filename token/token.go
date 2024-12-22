@@ -67,13 +67,13 @@ func Fetch(_ context.Context, vcsp vcs.Provider, allowUnauthenticated bool) (*sh
 	}
 
 	var token *shared.Token
-	errors := []error{}
+	errs := []error{}
 	for _, p := range defaultProviders[vcsp] {
 		var err error
 
 		token, err = p.Token()
 		if err != nil {
-			errors = append(errors, err)
+			errs = append(errs, err)
 			continue
 		}
 
@@ -87,7 +87,7 @@ func Fetch(_ context.Context, vcsp vcs.Provider, allowUnauthenticated bool) (*sh
 			return &shared.Token{}, nil
 		}
 
-		return nil, ErrNoToken(errors)
+		return nil, ErrNoToken(errs)
 	}
 	return token, nil
 }

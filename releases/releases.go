@@ -87,31 +87,31 @@ func Fetch(ctx context.Context, opts *FetchOptions) (io.ReadCloser, fs.FileInfo,
 }
 
 // GetReleaseNotes fetches the release notes of a release from a VCS provider.
-func GetReleaseNotes(ctx context.Context, opts *GetReleaseNoteOptions) (string, error) {
-	if opts == nil {
+func GetReleaseNotes(ctx context.Context, opt *GetReleaseNoteOptions) (string, error) {
+	if opt == nil {
 		return "", fmt.Errorf("opts is nil")
 	}
 
-	if opts.RepoURL == "" {
+	if opt.RepoURL == "" {
 		return "", fmt.Errorf("repo url is required")
 	}
 
-	if opts.Tag == "" {
+	if opt.Tag == "" {
 		return "", fmt.Errorf("tag is required")
 	}
 
-	vcsp, err := vcs.ProviderFromURL(opts.RepoURL, opts.Overrides)
+	vcsp, err := vcs.ProviderFromURL(opt.RepoURL, opt.Overrides)
 	if err != nil {
 		return "", fmt.Errorf("failed to get VCS provider from URL: %w", err)
 	}
 
-	token, err := token.Fetch(ctx, vcsp, true)
+	t, err := token.Fetch(ctx, vcsp, true)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch token: %w", err)
 	}
 
 	if fetcher, ok := fetchers[vcsp]; ok {
-		return fetcher.GetReleaseNotes(ctx, token, opts)
+		return fetcher.GetReleaseNotes(ctx, t, opt)
 	}
 
 	return "", fmt.Errorf("unknown VCS provider %s", vcsp)

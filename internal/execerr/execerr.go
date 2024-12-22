@@ -35,7 +35,7 @@ import (
 //
 // Otherwise, a new error is returned with details about the command
 // that was executed and it's output as present on the exec.ExitError.
-func From(cmd cmdexec.Cmd, err error) error {
+func From(_ cmdexec.Cmd, err error) error {
 	if err == nil {
 		return nil
 	}
