@@ -30,11 +30,17 @@ import (
 // Do not use the 'shared.Token' type, instead use [token.Token] which
 // is an alias to this type.
 type Token struct {
-	// FetchedAt is the time that the token was fetched at.
+	// FetchedAt is the time that the token was fetched at. This does not
+	// need to be set by providers as it is set by the [token.Fetch]
+	// function.
 	FetchedAt time.Time
 
 	// Value is the token value.
 	Value string
+
+	// Source is the source of the token, this is set depending on the
+	// provider that provided the token (e.g., `gh` for the Github CLI).
+	Source string
 
 	// Type is the type of the token, this is set depending on the
 	// provider that provided the token.
@@ -64,6 +70,7 @@ func (t *Token) String() string {
 func (t *Token) Clone() *Token {
 	return &Token{
 		FetchedAt: t.FetchedAt,
+		Source:    t.Source,
 		Value:     t.Value,
 		Type:      t.Type,
 	}

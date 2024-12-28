@@ -9,9 +9,9 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-// TestGhProviderTrimsSpace ensures that the token returned by the
-// ghProvider is trimmed of any leading or trailing whitespace.
-func TestGhProviderTrimsSpace(t *testing.T) {
+// TestTrimsSpace ensures that the token returned by the ghProvider is
+// trimmed of any leading or trailing whitespace.
+func TestTrimsSpace(t *testing.T) {
 	p := &github.GHProvider{}
 
 	cmdexec.UseMockExecutor(t, cmdexec.NewMockExecutor(&cmdexec.MockCommand{
@@ -22,5 +22,8 @@ func TestGhProviderTrimsSpace(t *testing.T) {
 
 	got, err := p.Token()
 	assert.NilError(t, err)
-	assert.DeepEqual(t, &token.Token{Value: "token"}, got)
+	assert.DeepEqual(t, &token.Token{
+		Source: "gh",
+		Value:  "token",
+	}, got)
 }

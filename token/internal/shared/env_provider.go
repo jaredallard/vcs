@@ -45,8 +45,9 @@ func (p *EnvProvider) Token() (*Token, error) {
 	for _, env := range p.EnvVars {
 		if token := os.Getenv(env.Name); token != "" {
 			return &Token{
-				Value: token,
-				Type:  env.Type,
+				Value:  token,
+				Source: fmt.Sprintf("environment variable (%s)", env.Name),
+				Type:   env.Type,
 			}, nil
 		}
 	}

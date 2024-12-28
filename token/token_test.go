@@ -26,7 +26,10 @@ func TestCanGetToken(t *testing.T) {
 	authToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false)
 	assert.NilError(t, err)
 	assert.Assert(t, authToken != nil, "expected a token to be returned")
-	assert.DeepEqual(t, authToken, &token.Token{Value: os.Getenv("GITHUB_TOKEN")}, ignoreTime)
+	assert.DeepEqual(t, authToken, &token.Token{
+		Source: "environment variable (GITHUB_TOKEN)",
+		Value:  os.Getenv("GITHUB_TOKEN"),
+	}, ignoreTime)
 }
 
 // TestCanGetCachedToken ensures that [token.Fetch] returns the same
@@ -38,12 +41,19 @@ func TestCanGetCachedToken(t *testing.T) {
 	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false, &token.Options{UseGlobalCache: &bfalse})
 	assert.NilError(t, err)
 	assert.Assert(t, originalToken != nil, "expected a token to be returned")
-	assert.DeepEqual(t, originalToken, &token.Token{Value: os.Getenv("GITHUB_TOKEN")}, ignoreTime)
+	assert.DeepEqual(t, originalToken, &token.Token{
+		Source: "environment variable (GITHUB_TOKEN)",
+		Value:  os.Getenv("GITHUB_TOKEN"),
+	}, ignoreTime)
 	assert.Equal(t, originalToken.FetchedAt.IsZero(), false) // should not be zero
 
 	// Fetch again, should return the same token.
 	newToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false)
 	assert.NilError(t, err)
 	assert.Assert(t, newToken != nil, "expected a token to be returned")
-	assert.DeepEqual(t, newToken, &token.Token{FetchedAt: originalToken.FetchedAt, Value: os.Getenv("GITHUB_TOKEN")})
+	assert.DeepEqual(t, newToken, &token.Token{
+		FetchedAt: originalToken.FetchedAt,
+		Source:    "environment variable (GITHUB_TOKEN)",
+		Value:     os.Getenv("GITHUB_TOKEN"),
+	})
 }
