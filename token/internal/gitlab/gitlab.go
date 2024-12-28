@@ -59,14 +59,14 @@ func (p *GlabProvider) Token() (*shared.Token, error) {
 	cmd := cmdexec.Command("glab", "config", "get", "-g", "host")
 	b, err := cmd.Output()
 	if err != nil {
-		return nil, execerr.From(cmd, err)
+		return nil, execerr.From(err)
 	}
 	host := strings.TrimSpace(string(b))
 
 	cmd = cmdexec.Command("glab", "config", "get", "-g", "token", "-h", host)
 	b, err = cmd.Output()
 	if err != nil {
-		return nil, execerr.From(cmd, err)
+		return nil, execerr.From(err)
 	}
 
 	token := strings.TrimSpace(string(b))

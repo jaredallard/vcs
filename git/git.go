@@ -33,6 +33,7 @@ import (
 
 	"github.com/jaredallard/cmdexec"
 	"github.com/jaredallard/vcs"
+	"github.com/jaredallard/vcs/internal/execerr"
 	"github.com/pkg/errors"
 )
 
@@ -145,7 +146,7 @@ func ListRemote(ctx context.Context, remote string) ([][]string, error) {
 	cmd := cmdexec.CommandContext(ctx, "git", "ls-remote", remote)
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get remote branches")
+		return nil, fmt.Errorf("failed to get remote branches: %w", execerr.From(err))
 	}
 
 	remotes := make([][]string, 0)

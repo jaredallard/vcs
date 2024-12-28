@@ -26,8 +26,6 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
-
-	"github.com/jaredallard/cmdexec"
 )
 
 // From attempts to parse the provided error as an exec.ExitError. If
@@ -35,7 +33,7 @@ import (
 //
 // Otherwise, a new error is returned with details about the command
 // that was executed and it's output as present on the exec.ExitError.
-func From(_ cmdexec.Cmd, err error) error {
+func From(err error) error {
 	if err == nil {
 		return nil
 	}

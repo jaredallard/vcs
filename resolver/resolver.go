@@ -24,6 +24,7 @@ package resolver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -32,6 +33,10 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/jaredallard/vcs/git"
 )
+
+// ErrUnableToSatisfy is returned when no versions are found that
+// satisfy the provided criteria.
+var ErrUnableToSatisfy = errors.New("no versions found that satisfy criteria")
 
 // Resolver is an instance of a version resolver that resolves versions
 // based on the provided criteria. Version lists are fetched exactly
@@ -75,7 +80,7 @@ func (r *Resolver) fetchVersionsIfNecessary(ctx context.Context, uri string) ([]
 	// Fetch versions for the URI.
 	remoteStrs, err := git.ListRemote(ctx, uri)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list remotes for %s: %w", uri, err)
+		return nil, err
 	}
 
 	versions := make([]Version, 0)
@@ -218,5 +223,5 @@ func (r *Resolver) Resolve(ctx context.Context, uri string, criteria ...*Criteri
 		return latest, nil
 	}
 
-	return nil, fmt.Errorf("no versions found that satisfy criteria")
+	return nil, ErrUnableToSatisfy
 }

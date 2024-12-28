@@ -44,7 +44,7 @@ func (p *GHProvider) Token() (*shared.Token, error) {
 	cmd := cmdexec.Command("gh", "auth", "token")
 	b, err := cmd.Output()
 	if err != nil {
-		return nil, execerr.From(cmd, err)
+		return nil, execerr.From(err)
 	}
 
 	token := strings.TrimSpace(string(b))
