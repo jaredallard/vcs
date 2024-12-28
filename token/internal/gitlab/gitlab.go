@@ -74,5 +74,8 @@ func (p *GlabProvider) Token() (*shared.Token, error) {
 		return nil, fmt.Errorf("no token returned")
 	}
 
-	return &shared.Token{Value: token}, nil
+	return &shared.Token{
+		Source: "glab",
+		Value:  token,
+	}, nil
 }

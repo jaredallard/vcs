@@ -52,5 +52,8 @@ func (p *GHProvider) Token() (*shared.Token, error) {
 		return nil, fmt.Errorf("no token returned from 'gh auth token'")
 	}
 
-	return &shared.Token{Value: token}, nil
+	return &shared.Token{
+		Source: "gh",
+		Value:  token,
+	}, nil
 }
