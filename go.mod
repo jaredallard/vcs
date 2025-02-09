@@ -12,7 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	gitlab.com/gitlab-org/api/client-go v0.120.0
 	golang.org/x/oauth2 v0.25.0
-	gotest.tools/v3 v3.5.1
+	gotest.tools/v3 v3.5.2
 )
 
 require (
