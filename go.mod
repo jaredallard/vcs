@@ -5,7 +5,7 @@ go 1.23.4
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/chainguard-dev/git-urls v1.0.2
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/google/go-github/v69 v69.2.0
 	github.com/jaredallard/archives v1.0.0
 	github.com/jaredallard/cmdexec v1.2.1
