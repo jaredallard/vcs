@@ -8,7 +8,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-github/v69 v69.2.0
 	github.com/jaredallard/archives v1.0.0
-	github.com/jaredallard/cmdexec v1.2.1
+	github.com/jaredallard/cmdexec v1.2.2
 	github.com/pkg/errors v0.9.1
 	gitlab.com/gitlab-org/api/client-go v0.124.0
 	golang.org/x/oauth2 v0.28.0
