@@ -16,6 +16,7 @@
 //
 // SPDX-License-Identifier: LGPL-3.0
 
+// Package main implements an example download of a release.
 package main
 
 import (
@@ -58,13 +59,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Close()
+	defer resp.Close() //nolint:errcheck,gosec // Why: Best effort.
 
 	f, err := os.Create(fi.Name())
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck,gosec // Why: Best effort.
 
 	if _, err := io.Copy(f, resp); err != nil {
 		panic(err)

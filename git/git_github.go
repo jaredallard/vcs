@@ -69,7 +69,7 @@ func cloneArchiveGithub(ctx context.Context, ref, sourceURL, tempDir string) (st
 	if err != nil {
 		return "", fmt.Errorf("failed to download archive: %w", err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck,gosec // Why: Best effort.
 
 	if err := archives.Extract(resp.Body, tempDir, archives.ExtractOptions{Extension: ".tar.gz"}); err != nil {
 		return "", fmt.Errorf("failed to extract archive: %w", err)
@@ -90,6 +90,7 @@ func cloneArchiveGithub(ctx context.Context, ref, sourceURL, tempDir string) (st
 		}
 
 		// Should contain the owner and repo name in it.
+		//nolint:staticcheck // Why: This is easy enough to read.
 		if !(strings.Contains(f.Name(), owner) && strings.Contains(f.Name(), repo)) {
 			continue
 		}
