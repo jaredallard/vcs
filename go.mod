@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/google/go-cmp v0.7.0
-	github.com/google/go-github/v70 v70.0.0
+	github.com/google/go-github/v71 v71.0.0
 	github.com/jaredallard/archives v1.0.1
 	github.com/jaredallard/cmdexec v1.2.2
 	github.com/pkg/errors v0.9.1
