@@ -3,7 +3,7 @@ module github.com/jaredallard/vcs
 go 1.23.4
 
 require (
-	github.com/Masterminds/semver/v3 v3.3.1
+	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-github/v73 v73.0.0
