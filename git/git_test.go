@@ -3,7 +3,6 @@
 package git_test
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,7 +12,7 @@ import (
 )
 
 func TestGit(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	// test clone
 	dir, err := git.Clone(ctx, "main", "https://github.com/jaredallard/jaredallard")
@@ -51,4 +50,20 @@ func TestGit(t *testing.T) {
 		_, err = os.Stat(filepath.Join(dir, ".git"))
 		assert.ErrorContains(t, err, "no such file or directory")
 	})
+}
+
+// Makes sure that GetDefaultBranch works correctly even when the system language is not set to English.
+// Not parallel because it sets an environment variable.
+func TestGetDefaultBranchDifferentOSLanguage(t *testing.T) {
+	ctx := t.Context()
+
+	dir, err := git.Clone(ctx, "main", "https://github.com/jaredallard/jaredallard")
+	assert.NilError(t, err)
+
+	assert.Assert(t, dir != "", "expected a directory to be returned")
+
+	t.Setenv("LC_ALL", "fr_FR.UTF-8")
+	defaultBranch, err := git.GetDefaultBranch(ctx, dir)
+	assert.NilError(t, err)
+	assert.Equal(t, defaultBranch, "main", "Expected default branch to be 'main'")
 }
