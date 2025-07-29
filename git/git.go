@@ -51,11 +51,22 @@ var (
 	headPattern = regexp.MustCompile(`HEAD branch: ([[:alpha:]]+)`)
 )
 
+// gitCommand is a wrapper for [cmdexec.CommandContext] for git which
+// forces `LC_ALL=C` into the environment, in the event that the
+// command output is parsed.
+func gitCommand(ctx context.Context, args ...string) cmdexec.Cmd {
+	cmd := cmdexec.CommandContext(ctx, "git", args...)
+	env := os.Environ()
+	env = append(env, "LC_ALL=C")
+	cmd.SetEnviron(env)
+	return cmd
+}
+
 // GetDefaultBranch determines the default/HEAD branch for a given git
 // repository.
 func GetDefaultBranch(ctx context.Context, path string) (string, error) {
-	cmd := exec.CommandContext(ctx, "git", "remote", "show", "origin")
-	cmd.Dir = path
+	cmd := gitCommand(ctx, "remote", "show", "origin")
+	cmd.SetDir(path)
 	out, err := cmd.Output()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get head branch from remote origin")
@@ -118,14 +129,14 @@ func Clone(ctx context.Context, ref, url string, optss ...*CloneOptions) (string
 	}
 
 	cmds := [][]string{
-		{"git", "init"},
-		{"git", "remote", "add", "origin", url},
-		{"git", "-c", "protocol.version=2", "fetch", "origin", ref},
-		{"git", "reset", "--hard", "FETCH_HEAD"},
+		{"init"},
+		{"remote", "add", "origin", url},
+		{"-c", "protocol.version=2", "fetch", "origin", ref},
+		{"reset", "--hard", "FETCH_HEAD"},
 	}
 	for _, cmd := range cmds {
 		//nolint:gosec // Why: Commands are not user provided.
-		c := cmdexec.CommandContext(ctx, cmd[0], cmd[1:]...)
+		c := gitCommand(ctx, cmd...)
 		c.SetDir(tempDir)
 		if err := c.Run(); err != nil {
 			var execErr *exec.ExitError
@@ -143,7 +154,7 @@ func Clone(ctx context.Context, ref, url string, optss ...*CloneOptions) (string
 // ListRemote returns a list of all remotes as shown from running 'git
 // ls-remote'.
 func ListRemote(ctx context.Context, remote string) ([][]string, error) {
-	cmd := cmdexec.CommandContext(ctx, "git", "ls-remote", remote)
+	cmd := gitCommand(ctx, "ls-remote", remote)
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get remote branches: %w", execerr.From(err))

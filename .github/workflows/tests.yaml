@@ -23,6 +23,8 @@ jobs:
           experimental: true
         env:
           GH_TOKEN: ${{ github.token }}
+      - name: Install extra dependencies for tests
+        run: sudo apt-get install --yes language-pack-fr
       - name: Get Go directories
         id: go
         run: |
