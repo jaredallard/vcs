@@ -39,8 +39,8 @@ github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/ulikunitz/xz v0.5.12 h1:37Nm15o69RwBkXM0J6A5OlE67RZTfzUxTj8fB3dfcsc=
 github.com/ulikunitz/xz v0.5.12/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
-gitlab.com/gitlab-org/api/client-go v0.142.4 h1:tTm+hUPrOcTavmKpM9YIP503IE0EdAkg4TG3t6QGbiw=
-gitlab.com/gitlab-org/api/client-go v0.142.4/go.mod h1:Ru5IRauphXt9qwmTzJD7ou1dH7Gc6pnsdFWEiMMpmB0=
+gitlab.com/gitlab-org/api/client-go v0.142.5 h1:zvengEU958Fjwasi1V+9QNRw0viqNKkqUwvFD15XDZI=
+gitlab.com/gitlab-org/api/client-go v0.142.5/go.mod h1:Ru5IRauphXt9qwmTzJD7ou1dH7Gc6pnsdFWEiMMpmB0=
 golang.org/x/oauth2 v0.30.0 h1:dnDm7JmhM45NNpd8FDDeLhK6FwqbOf4MLCM9zb1BOHI=
 golang.org/x/oauth2 v0.30.0/go.mod h1:B++QgG3ZKulg6sRPGD/mqlHQs5rB3Ml9erfeDY7xKlU=
 golang.org/x/sys v0.34.0 h1:H5Y5sJ2L2JRdyv7ROF1he/lPdvFsd0mJHFw2ThKHxLA=
