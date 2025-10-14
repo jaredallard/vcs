@@ -30,7 +30,7 @@ import (
 	"strings"
 
 	giturls "github.com/chainguard-dev/git-urls"
-	"github.com/google/go-github/v75/github"
+	"github.com/google/go-github/v76/github"
 	"github.com/jaredallard/archives"
 	"github.com/jaredallard/vcs"
 	"github.com/jaredallard/vcs/token"
