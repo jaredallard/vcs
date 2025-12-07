@@ -10,7 +10,7 @@ require (
 	github.com/jaredallard/archives v1.0.1
 	github.com/jaredallard/cmdexec v1.3.0
 	github.com/pkg/errors v0.9.1
-	gitlab.com/gitlab-org/api/client-go v0.161.1
+	gitlab.com/gitlab-org/api/client-go v1.7.0
 	golang.org/x/oauth2 v0.33.0
 	gotest.tools/v3 v3.5.2
 )
@@ -22,6 +22,6 @@ require (
 	github.com/jamespfennell/xz v0.1.2 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
-	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
-	golang.org/x/time v0.12.0 // indirect
+	golang.org/x/exp v0.0.0-20250813145105-42675adae3e6 // indirect
+	golang.org/x/time v0.14.0 // indirect
 )
