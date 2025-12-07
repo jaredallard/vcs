@@ -69,7 +69,7 @@ func (f *Fetcher) createClient(t *token.Token) (*gogitlab.Client, error) {
 }
 
 // getPIDFromRepoURL returns the project ID from a given repository URL.
-func (f *Fetcher) getPIDFromRepoURL(repoURL string, glab *gogitlab.Client) (int, error) {
+func (f *Fetcher) getPIDFromRepoURL(repoURL string, glab *gogitlab.Client) (int64, error) {
 	u, err := url.Parse(repoURL)
 	if err != nil {
 		return 0, err
