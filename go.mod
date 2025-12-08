@@ -11,7 +11,7 @@ require (
 	github.com/jaredallard/cmdexec v1.3.0
 	github.com/pkg/errors v0.9.1
 	gitlab.com/gitlab-org/api/client-go v1.7.0
-	golang.org/x/oauth2 v0.33.0
+	golang.org/x/oauth2 v0.34.0
 	gotest.tools/v3 v3.5.2
 )
 
