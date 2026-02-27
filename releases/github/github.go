@@ -29,7 +29,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	gogithub "github.com/google/go-github/v82/github"
+	gogithub "github.com/google/go-github/v84/github"
 	"github.com/jaredallard/vcs/internal/fileinfo"
 	"github.com/jaredallard/vcs/releases/internal/opts"
 	"github.com/jaredallard/vcs/token"
