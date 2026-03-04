@@ -33,7 +33,7 @@ import (
 	"github.com/jaredallard/vcs/internal/fileinfo"
 	"github.com/jaredallard/vcs/releases/internal/opts"
 	"github.com/jaredallard/vcs/token"
-	gogitlab "gitlab.com/gitlab-org/api/client-go"
+	gogitlab "gitlab.com/gitlab-org/api/client-go/v2"
 )
 
 // _ is a compile-time assertion that Fetcher implements the
