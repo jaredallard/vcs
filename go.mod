@@ -1,6 +1,6 @@
 module github.com/jaredallard/vcs
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
@@ -10,7 +10,7 @@ require (
 	github.com/jaredallard/archives v1.0.2
 	github.com/jaredallard/cmdexec v1.3.0
 	github.com/pkg/errors v0.9.1
-	gitlab.com/gitlab-org/api/client-go v1.34.0
+	gitlab.com/gitlab-org/api/client-go/v2 v2.2.1
 	golang.org/x/oauth2 v0.34.0
 	gotest.tools/v3 v3.5.2
 )
