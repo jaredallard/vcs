@@ -1,4 +1,4 @@
-// Copyright (C) 2024 vcs contributors
+// Copyright (C) 2026 vcs contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as
