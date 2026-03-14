@@ -31,9 +31,9 @@ import (
 
 	giturls "github.com/chainguard-dev/git-urls"
 	"github.com/google/go-github/v82/github"
+	"go.rgst.io/jaredallard/archives/v2"
 	"go.rgst.io/jaredallard/vcs/v2"
 	"go.rgst.io/jaredallard/vcs/v2/token"
-	"go.rgst.io/jaredallard/archives/v2"
 )
 
 // cloneArchiveGithub is the same as [Clone] but uses the Github API to

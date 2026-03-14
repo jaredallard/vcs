@@ -23,9 +23,9 @@ import (
 	"fmt"
 	"strings"
 
+	"go.rgst.io/jaredallard/cmdexec/v2"
 	"go.rgst.io/jaredallard/vcs/v2/internal/execerr"
 	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
-	"go.rgst.io/jaredallard/cmdexec/v2"
 )
 
 // Providers is a list of providers that can be used to retrieve a

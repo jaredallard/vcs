@@ -30,10 +30,10 @@ import (
 	"strings"
 	"time"
 
+	gogitlab "gitlab.com/gitlab-org/api/client-go"
 	"go.rgst.io/jaredallard/vcs/v2/internal/fileinfo"
 	"go.rgst.io/jaredallard/vcs/v2/releases/internal/opts"
 	"go.rgst.io/jaredallard/vcs/v2/token"
-	gogitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 // _ is a compile-time assertion that Fetcher implements the

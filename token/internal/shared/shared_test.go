@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"go.rgst.io/jaredallard/cmdexec/v2"
 	"go.rgst.io/jaredallard/vcs/v2"
 	"go.rgst.io/jaredallard/vcs/v2/token"
 	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
-	"go.rgst.io/jaredallard/cmdexec/v2"
 	"gotest.tools/v3/assert"
 )
 

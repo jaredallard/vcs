@@ -43,7 +43,7 @@ func TestGit(t *testing.T) {
 	t.Run("Clone_Opts_UseArchive", func(t *testing.T) {
 		t.Parallel()
 
-		dir, err := git.Clone(ctx, "v0.2.0", "https://go.rgst.io/jaredallard/vcs/v2", &git.CloneOptions{UseArchive: true})
+		dir, err := git.Clone(ctx, "v0.2.0", "https://github.com/jaredallard/vcs", &git.CloneOptions{UseArchive: true})
 		assert.NilError(t, err)
 
 		// ensure .git does not exist in the directory

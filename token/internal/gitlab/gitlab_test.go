@@ -3,8 +3,8 @@ package gitlab
 import (
 	"testing"
 
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
 	"go.rgst.io/jaredallard/cmdexec/v2"
+	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
 	"gotest.tools/v3/assert"
 )
 
