@@ -25,8 +25,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/jaredallard/vcs"
-	"github.com/jaredallard/vcs/token"
+	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v2/token"
 )
 
 // Fetcher is an interface that fetches assets from a release. VCS

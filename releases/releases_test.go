@@ -7,7 +7,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/jaredallard/vcs"
+	"go.rgst.io/jaredallard/vcs/v2"
 )
 
 func TestFetch(t *testing.T) {

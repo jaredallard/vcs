@@ -30,9 +30,9 @@ import (
 	"strings"
 
 	gogithub "github.com/google/go-github/v82/github"
-	"github.com/jaredallard/vcs/internal/fileinfo"
-	"github.com/jaredallard/vcs/releases/internal/opts"
-	"github.com/jaredallard/vcs/token"
+	"go.rgst.io/jaredallard/vcs/v2/internal/fileinfo"
+	"go.rgst.io/jaredallard/vcs/v2/releases/internal/opts"
+	"go.rgst.io/jaredallard/vcs/v2/token"
 	"golang.org/x/oauth2"
 )
 

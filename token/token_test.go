@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/jaredallard/vcs"
-	"github.com/jaredallard/vcs/token"
+	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v2/token"
 	"gotest.tools/v3/assert"
 )
 

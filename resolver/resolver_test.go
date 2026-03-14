@@ -6,7 +6,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jaredallard/vcs/resolver"
+	"go.rgst.io/jaredallard/vcs/v2/resolver"
 	"gotest.tools/v3/assert"
 )
 

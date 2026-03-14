@@ -28,11 +28,11 @@ import (
 	"io"
 	"io/fs"
 
-	"github.com/jaredallard/vcs"
-	"github.com/jaredallard/vcs/releases/github"
-	"github.com/jaredallard/vcs/releases/gitlab"
-	"github.com/jaredallard/vcs/releases/internal/opts"
-	"github.com/jaredallard/vcs/token"
+	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v2/releases/github"
+	"go.rgst.io/jaredallard/vcs/v2/releases/gitlab"
+	"go.rgst.io/jaredallard/vcs/v2/releases/internal/opts"
+	"go.rgst.io/jaredallard/vcs/v2/token"
 )
 
 // fetchers is a map of VCS provider to their respective fetcher.

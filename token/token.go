@@ -26,10 +26,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jaredallard/vcs"
-	"github.com/jaredallard/vcs/token/internal/github"
-	"github.com/jaredallard/vcs/token/internal/gitlab"
-	"github.com/jaredallard/vcs/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v2/token/internal/github"
+	"go.rgst.io/jaredallard/vcs/v2/token/internal/gitlab"
+	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
 )
 
 // defaultProviders contains all of the providers that are supported by

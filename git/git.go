@@ -31,10 +31,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jaredallard/cmdexec"
-	"github.com/jaredallard/vcs"
-	"github.com/jaredallard/vcs/internal/execerr"
+	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v2/internal/execerr"
 	"github.com/pkg/errors"
+	"go.rgst.io/jaredallard/cmdexec/v2"
 )
 
 // This block contains errors and regexes

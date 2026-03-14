@@ -3,9 +3,9 @@ package github_test
 import (
 	"testing"
 
-	"github.com/jaredallard/cmdexec"
-	"github.com/jaredallard/vcs/token"
-	"github.com/jaredallard/vcs/token/internal/github"
+	"go.rgst.io/jaredallard/vcs/v2/token"
+	"go.rgst.io/jaredallard/vcs/v2/token/internal/github"
+	"go.rgst.io/jaredallard/cmdexec/v2"
 	"gotest.tools/v3/assert"
 )
 

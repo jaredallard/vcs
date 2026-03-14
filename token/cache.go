@@ -21,8 +21,8 @@ package token
 import (
 	"sync"
 
-	"github.com/jaredallard/vcs"
-	"github.com/jaredallard/vcs/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
 )
 
 // tokenCache is a cache of tokens that have been fetched from the

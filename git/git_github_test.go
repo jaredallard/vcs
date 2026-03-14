@@ -43,14 +43,14 @@ func Test_cloneArchiveGithub(t *testing.T) {
 			name: "can download archive",
 			args: args{
 				ref:       "main",
-				sourceURL: "https://github.com/jaredallard/vcs",
+				sourceURL: "https://go.rgst.io/jaredallard/vcs/v2",
 			},
 		},
 		{
 			name: "supports git urls",
 			args: args{
 				ref:       "v0.1.0",
-				sourceURL: "git://github.com/jaredallard/vcs",
+				sourceURL: "git://go.rgst.io/jaredallard/vcs/v2",
 			},
 		},
 		{
@@ -64,7 +64,7 @@ func Test_cloneArchiveGithub(t *testing.T) {
 			name: "supports .git at end of url",
 			args: args{
 				ref:       "v0.2.0",
-				sourceURL: "https://github.com/jaredallard/vcs.git",
+				sourceURL: "https://go.rgst.io/jaredallard/vcs/v2.git",
 			},
 		},
 	}

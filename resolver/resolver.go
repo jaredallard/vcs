@@ -31,7 +31,7 @@ import (
 	"sync"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/jaredallard/vcs/git"
+	"go.rgst.io/jaredallard/vcs/v2/git"
 )
 
 // ErrUnableToSatisfy is returned when no versions are found that
