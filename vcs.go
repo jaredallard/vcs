@@ -35,6 +35,12 @@ const (
 
 	// ProviderGitlab represents Gitlab.
 	ProviderGitlab Provider = "gitlab"
+
+	// ProviderGitea represents Gitea.
+	ProviderGitea Provider = "gitea"
+
+	// ProviderForgejo represents Forgejo.
+	ProviderForgejo Provider = "forgejo"
 )
 
 // Override represents an override for a given URL passed to
@@ -65,6 +71,8 @@ func ProviderFromURL(url string, overrides []Override) (Provider, error) {
 	case strings.Contains(url, "gitlab."):
 		// Support gitlab.xyz addresses.
 		return ProviderGitlab, nil
+	case strings.Contains(url, "codeberge.org"), strings.Contains(url, "git.rgst.io"):
+		return ProviderForgejo, nil
 	default:
 		return "", fmt.Errorf("unknown VCS provider for URL: %s", url)
 	}

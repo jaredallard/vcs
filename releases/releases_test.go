@@ -111,6 +111,18 @@ func TestFetch(t *testing.T) {
 			wantName: "vcs-test-repo-v0.1.0.tar.gz",
 		},
 		{
+			name: "should support gitea (forgejo)",
+			args: args{
+				opts: &FetchOptions{
+					RepoURL:   "https://git.rgst.io/jaredallard/ingress-anubis",
+					Tag:       "v1.10.4",
+					AssetName: "checksums.txt",
+				},
+			},
+			want:     "df62dbe653de600d5d76ae2dcb03baf10ea6081b9b6cf8347e0842f81e21e16c",
+			wantName: "checksums.txt",
+		},
+		{
 			name: "should support overrides",
 			args: args{
 				opts: &FetchOptions{
@@ -130,7 +142,7 @@ func TestFetch(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got, fi, err := Fetch(context.Background(), tt.args.opts)
+			got, fi, err := Fetch(t.Context(), tt.args.opts)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Fetch() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -140,14 +152,13 @@ func TestFetch(t *testing.T) {
 			}
 			defer got.Close()
 
-			b, err := io.ReadAll(got)
-			if err != nil {
+			h := sha256.New()
+			if _, err := io.Copy(h, got); err != nil {
 				t.Errorf("Fetch() error = %v", err)
 				return
 			}
 
-			hashByt := sha256.Sum256(b)
-			hash := hex.EncodeToString(hashByt[:])
+			hash := hex.EncodeToString(h.Sum(nil))
 			if hash != tt.want {
 				t.Errorf("Fetch() hash = %v, want %v", hash, tt.want)
 			}

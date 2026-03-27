@@ -27,6 +27,8 @@ import (
 	"time"
 
 	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v2/token/internal/forgejo"
+	"go.rgst.io/jaredallard/vcs/v2/token/internal/gitea"
 	"go.rgst.io/jaredallard/vcs/v2/token/internal/github"
 	"go.rgst.io/jaredallard/vcs/v2/token/internal/gitlab"
 	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
@@ -35,8 +37,10 @@ import (
 // defaultProviders contains all of the providers that are supported by
 // this package by VCS provider.
 var defaultProviders = map[vcs.Provider][]shared.Provider{
-	vcs.ProviderGithub: github.Providers,
-	vcs.ProviderGitlab: gitlab.Providers,
+	vcs.ProviderGithub:  github.Providers,
+	vcs.ProviderGitlab:  gitlab.Providers,
+	vcs.ProviderGitea:   gitea.Providers,
+	vcs.ProviderForgejo: forgejo.Providers,
 }
 
 // Token is a VCS token that can be used for API access. Defined here to

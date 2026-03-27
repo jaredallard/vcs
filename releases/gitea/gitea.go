@@ -16,8 +16,8 @@
 //
 // SPDX-License-Identifier: LGPL-3.0
 
-// Package gitlab implements [opts.Fetcher] for Gitlab releases.
-package gitlab
+// Package gitea implements [opts.Fetcher] for Gitea/Forgjo releases.
+package gitea
 
 import (
 	"context"
@@ -28,9 +28,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
-	gogitlab "gitlab.com/gitlab-org/api/client-go"
+	"code.gitea.io/sdk/gitea"
 	"go.rgst.io/jaredallard/vcs/v2/internal/fileinfo"
 	"go.rgst.io/jaredallard/vcs/v2/releases/internal/opts"
 	"go.rgst.io/jaredallard/vcs/v2/token"
@@ -40,84 +39,83 @@ import (
 // [opts.Fetcher] interface.
 var _ opts.Fetcher = &Fetcher{}
 
-// Fetcher implements the [releases.Fetcher] interface for Gitlab releases.
+// Fetcher implements the [releases.Fetcher] interface for Gitea releases.
 type Fetcher struct{}
 
 // assetToFileInfo creates a type that satisfies [os.FileInfo] from the
-// given [gogitlab.ReleaseLink].
-func assetToFileInfo(rl *gogitlab.ReleaseLink) os.FileInfo {
-	return fileinfo.New(rl.Name, 0, time.Time{}, rl)
+// given [gitea.Attachment].
+func assetToFileInfo(a *gitea.Attachment) os.FileInfo {
+	return fileinfo.New(a.Name, a.Size, a.Created, a)
 }
 
-// createClient creates a Gitlab client
-func (f *Fetcher) createClient(t *token.Token) (*gogitlab.Client, error) {
-	if t.IsUnauthenticated() {
-		return gogitlab.NewClient("")
+// createClient creates a Gitea client
+func (f *Fetcher) createClient(repoURL string, t *token.Token) (*gitea.Client, error) {
+	u, err := url.Parse(repoURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse repo url %q as a URL: %w", repoURL, err)
 	}
 
-	var client *gogitlab.Client
-	var err error
-	switch t.Type {
-	case "pat", "": // Default is PAT.
-		client, err = gogitlab.NewClient(t.Value)
-	case "job":
-		client, err = gogitlab.NewJobClient(t.Value)
-	default:
-		return nil, fmt.Errorf("unknown token type %s", t.Type)
+	baseURL := u.Scheme + "://" + u.Host
+	if t.IsUnauthenticated() {
+		return gitea.NewClient(baseURL)
 	}
+
+	client, err := gitea.NewClient(u.Scheme+"://"+u.Host, gitea.SetBasicAuth("token", t.Value))
 	return client, err
 }
 
-// getPIDFromRepoURL returns the project ID from a given repository URL.
-func (f *Fetcher) getPIDFromRepoURL(repoURL string, glab *gogitlab.Client) (int64, error) {
-	u, err := url.Parse(repoURL)
+// getOrgRepoFromURL returns the org and repo from a URL:
+//
+// Example: https://git.rgst.io/rgst-io/stencil
+func getOrgRepoFromURL(urlStr string) (owner, repo string, err error) {
+	u, err := url.Parse(urlStr)
 	if err != nil {
-		return 0, err
+		return "", "", err
 	}
 
-	proj, _, err := glab.Projects.GetProject(strings.TrimPrefix(u.Path, "/"), nil)
-	if err != nil {
-		return 0, err
+	// /rgst-io/stencil -> ["", "rgst-io", "stencil"]
+	spl := strings.Split(u.Path, "/")
+	if len(spl) != 3 {
+		return "", "", fmt.Errorf("invalid Github URL: %s", urlStr)
 	}
-
-	return proj.ID, nil
+	return spl[1], spl[2], nil
 }
 
 // GetReleaseNotes returns the release notes for a given tag
 func (f *Fetcher) GetReleaseNotes(_ context.Context, t *token.Token, opt *opts.GetReleaseNoteOptions) (string, error) {
-	glab, err := f.createClient(t)
+	gsdk, err := f.createClient(opt.RepoURL, t)
 	if err != nil {
 		return "", err
 	}
-
 	friendlyRepo := strings.TrimPrefix(opt.RepoURL, "https://")
-	pid, err := f.getPIDFromRepoURL(opt.RepoURL, glab)
+
+	owner, repo, err := getOrgRepoFromURL(opt.RepoURL)
 	if err != nil {
 		return "", err
 	}
 
-	rel, _, err := glab.Releases.GetRelease(pid, opt.Tag)
+	rel, _, err := gsdk.GetReleaseByTag(owner, repo, opt.Tag)
 	if err != nil {
 		return "", fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opt.Tag, err)
 	}
-	return rel.Description, nil
+	return rel.Note, nil
 }
 
 // Fetch fetches a release from a github repository and the underlying
 // release asset.
 func (f *Fetcher) Fetch(_ context.Context, t *token.Token, opt *opts.FetchOptions) (io.ReadCloser, os.FileInfo, error) {
-	glab, err := f.createClient(t)
+	gsdk, err := f.createClient(opt.RepoURL, t)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	friendlyRepo := strings.TrimPrefix(opt.RepoURL, "https://")
-	pid, err := f.getPIDFromRepoURL(opt.RepoURL, glab)
+
+	owner, repo, err := getOrgRepoFromURL(opt.RepoURL)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rel, _, err := glab.Releases.GetRelease(pid, opt.Tag)
+	rel, _, err := gsdk.GetReleaseByTag(owner, repo, opt.Tag)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get release for %s@%s: %w", friendlyRepo, opt.Tag, err)
 	}
@@ -130,46 +128,44 @@ func (f *Fetcher) Fetch(_ context.Context, t *token.Token, opt *opts.FetchOption
 	}
 
 	// Find an asset that matches the provided asset names
-	var rl *gogitlab.ReleaseLink
-	for _, relLink := range rel.Assets.Links {
+	var a *gitea.Attachment
+	for _, asset := range rel.Attachments {
 		for _, assetName := range validAssets {
 			matched := false
 
 			// attempt to use glob first, if that errors then fall back to
 			// straight strings comparison
-			if match, err := filepath.Match(assetName, relLink.Name); err == nil {
+			if match, err := filepath.Match(assetName, asset.Name); err == nil {
 				matched = match
-			} else if assetName == relLink.Name {
+			} else if assetName == asset.Name {
 				matched = true
 			}
 
 			if matched {
-				rl = relLink
+				a = asset
 				break
 			}
 		}
 	}
-	if rl == nil {
+	if a == nil {
 		return nil, nil,
 			fmt.Errorf("failed to find asset %v in release %s@%s", validAssets, friendlyRepo, opt.Tag)
 	}
 
 	// Download the asset
-	req, err := http.NewRequest(http.MethodGet, rl.DirectAssetURL, http.NoBody)
+	req, err := http.NewRequest(http.MethodGet, a.DownloadURL, http.NoBody)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create request to download asset: %w", err)
 	}
 
 	if !t.IsUnauthenticated() {
-		// TODO(jaredallard): Gitlab's auth system is awful, so job token
-		// won't _just work_. We'll eventually need to support it.
-		req.Header.Set("PRIVATE-TOKEN", t.Value)
+		req.Header.Set("Authorization", "token "+t.Value)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, nil,
-			fmt.Errorf("failed to download asset %s from release %s@%s: %w", rl.Name, friendlyRepo, opt.Tag, err)
+			fmt.Errorf("failed to download asset %s from release %s@%s: %w", a.Name, friendlyRepo, opt.Tag, err)
 	}
-	return resp.Body, assetToFileInfo(rl), nil
+	return resp.Body, assetToFileInfo(a), nil
 }

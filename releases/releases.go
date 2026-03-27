@@ -29,6 +29,7 @@ import (
 	"io/fs"
 
 	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v2/releases/gitea"
 	"go.rgst.io/jaredallard/vcs/v2/releases/github"
 	"go.rgst.io/jaredallard/vcs/v2/releases/gitlab"
 	"go.rgst.io/jaredallard/vcs/v2/releases/internal/opts"
@@ -37,8 +38,10 @@ import (
 
 // fetchers is a map of VCS provider to their respective fetcher.
 var fetchers = map[vcs.Provider]opts.Fetcher{
-	vcs.ProviderGithub: &github.Fetcher{},
-	vcs.ProviderGitlab: &gitlab.Fetcher{},
+	vcs.ProviderGithub:  &github.Fetcher{},
+	vcs.ProviderGitlab:  &gitlab.Fetcher{},
+	vcs.ProviderGitea:   &gitea.Fetcher{},
+	vcs.ProviderForgejo: &gitea.Fetcher{},
 }
 
 // GetReleaseNoteOptions is an alias for [opts.GetReleaseNoteOptions].
