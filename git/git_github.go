@@ -23,12 +23,14 @@ package git
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"code.gitea.io/sdk/gitea"
 	giturls "github.com/chainguard-dev/git-urls"
 	"github.com/google/go-github/v82/github"
 	"go.rgst.io/jaredallard/archives/v2"
@@ -36,21 +38,21 @@ import (
 	"go.rgst.io/jaredallard/vcs/v2/token"
 )
 
-// cloneArchiveGithub is the same as [Clone] but uses the Github API to
+// cloneArchive is the same as [Clone] but uses the Provider API to
 // download the repository contents at a specific ref. These archives do
 // not contain the .git directory and thus may not always be desirable.
-func cloneArchiveGithub(ctx context.Context, ref, sourceURL, tempDir string) (string, error) {
+func cloneArchive(ctx context.Context, vcsp vcs.Provider, ref, sourceURL, tempDir string) (string, error) {
 	u, err := giturls.Parse(sourceURL)
 	if err != nil {
 		return "", err
 	}
 
-	t, err := token.Fetch(ctx, vcs.ProviderGithub, true)
+	t, err := token.Fetch(ctx, vcsp, false, &token.Options{
+		AllowUnauthenticated: true,
+	})
 	if err != nil {
 		return "", fmt.Errorf("failed to get github token for archive fetch: %w", err)
 	}
-
-	gh := github.NewClient(nil).WithAuthToken(t.Value)
 
 	owner, repo := path.Split(u.Path)
 
@@ -58,20 +60,50 @@ func cloneArchiveGithub(ctx context.Context, ref, sourceURL, tempDir string) (st
 	owner = strings.ReplaceAll(owner, "/", "")
 	repo = strings.TrimSuffix(repo, ".git")
 
-	rc, _, err := gh.Repositories.GetArchiveLink(ctx, owner, repo, github.Tarball, &github.RepositoryContentGetOptions{
-		Ref: ref,
-	}, 0)
-	if err != nil {
-		return "", fmt.Errorf("failed to get archive link: %w", err)
-	}
+	var body io.ReadCloser
+	switch vcsp { //nolint:exhaustive // Why: see default
+	case vcs.ProviderGithub:
+		gh := github.NewClient(nil)
+		if !t.IsUnauthenticated() {
+			gh = gh.WithAuthToken(t.Value)
+		}
 
-	resp, err := http.Get(rc.String())
-	if err != nil {
-		return "", fmt.Errorf("failed to download archive: %w", err)
-	}
-	defer resp.Body.Close() //nolint:errcheck,gosec // Why: Best effort.
+		rc, _, err := gh.Repositories.GetArchiveLink(ctx, owner, repo, github.Tarball, &github.RepositoryContentGetOptions{
+			Ref: ref,
+		}, 0)
+		if err != nil {
+			return "", fmt.Errorf("failed to get archive link: %w", err)
+		}
 
-	if err := archives.Extract(resp.Body, tempDir, archives.ExtractOptions{Extension: ".tar.gz"}); err != nil {
+		req, err := gh.NewRequest(http.MethodGet, rc.String(), http.NoBody)
+		if err != nil {
+			return "", fmt.Errorf("failed to download archive: %w", err)
+		}
+
+		resp, err := gh.BareDo(ctx, req)
+		if err != nil {
+			return "", fmt.Errorf("failed to download archive: %w", err)
+		}
+		body = resp.Body
+	case vcs.ProviderForgejo, vcs.ProviderGitea:
+		gsdk, err := gitea.NewClient(u.Scheme + "://" + u.Host)
+		if err != nil {
+			return "", fmt.Errorf("failed to create gitea sdk: %w", err)
+		}
+		if !t.IsUnauthenticated() {
+			gsdk.SetBasicAuth("token", t.Value)
+		}
+
+		body, _, err = gsdk.GetArchiveReader(owner, repo, ref, gitea.TarGZArchive)
+		if err != nil {
+			return "", fmt.Errorf("failed to download archive: %w", err)
+		}
+	default:
+		return "", fmt.Errorf("provider %q doesn't support archive downloads", vcsp)
+	}
+	defer body.Close() //nolint:errcheck,gosec // Why: Best effort.
+
+	if err := archives.Extract(body, tempDir, archives.ExtractOptions{Extension: ".tar.gz"}); err != nil {
 		return "", fmt.Errorf("failed to extract archive: %w", err)
 	}
 
@@ -89,9 +121,11 @@ func cloneArchiveGithub(ctx context.Context, ref, sourceURL, tempDir string) (st
 			continue
 		}
 
-		// Should contain the owner and repo name in it.
-		//nolint:staticcheck // Why: This is easy enough to read.
-		if !(strings.Contains(f.Name(), owner) && strings.Contains(f.Name(), repo)) {
+		// Should either contain the org+repo, OR be exactly equal to the
+		// repo name (forgejo/gitea)
+		hasOwnerAndRepo := strings.Contains(f.Name(), owner) && strings.Contains(f.Name(), repo)
+		exactRepo := f.Name() == repo
+		if !hasOwnerAndRepo && !exactRepo {
 			continue
 		}
 

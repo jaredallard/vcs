@@ -120,8 +120,11 @@ func Clone(ctx context.Context, ref, url string, optss ...*CloneOptions) (string
 
 	if opts.UseArchive {
 		provider, err := vcs.ProviderFromURL(url, nil)
-		if err == nil && provider == vcs.ProviderGithub {
-			tmpDir, err := cloneArchiveGithub(ctx, ref, url, tempDir)
+		providerSupportsArchives := (provider == vcs.ProviderGithub ||
+			provider == vcs.ProviderForgejo ||
+			provider == vcs.ProviderGitea)
+		if err == nil && providerSupportsArchives {
+			tmpDir, err := cloneArchive(ctx, provider, ref, url, tempDir)
 			if err == nil {
 				return tmpDir, nil
 			}

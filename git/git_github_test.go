@@ -21,16 +21,17 @@
 package git
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"go.rgst.io/jaredallard/vcs/v2"
 	"gotest.tools/v3/assert"
 )
 
-func Test_cloneArchiveGithub(t *testing.T) {
+func Test_cloneArchive(t *testing.T) {
 	type args struct {
+		vcsp      vcs.Provider
 		ref       string
 		sourceURL string
 	}
@@ -67,10 +68,22 @@ func Test_cloneArchiveGithub(t *testing.T) {
 				sourceURL: "https://github.com/jaredallard/vcs.git",
 			},
 		},
+		{
+			name: "can download gitea (forgejo) archive",
+			args: args{
+				ref:       "main",
+				sourceURL: "https://git.rgst.io/jaredallard/vcs",
+				vcsp:      vcs.ProviderForgejo,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := cloneArchiveGithub(context.Background(), tt.args.ref, tt.args.sourceURL, t.TempDir())
+			if tt.args.vcsp == "" {
+				tt.args.vcsp = vcs.ProviderGithub
+			}
+
+			got, err := cloneArchive(t.Context(), tt.args.vcsp, tt.args.ref, tt.args.sourceURL, t.TempDir())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("cloneArchiveGithub() error = %v, wantErr %v", err, tt.wantErr)
 				return
