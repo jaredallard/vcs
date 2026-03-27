@@ -8,6 +8,8 @@ and downloading releases.
 
 - Github
 - Gitlab
+- Gitea
+- Forgejo
 
 ## Documentation
 
