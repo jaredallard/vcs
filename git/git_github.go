@@ -32,7 +32,7 @@ import (
 
 	"code.gitea.io/sdk/gitea"
 	giturls "github.com/chainguard-dev/git-urls"
-	"github.com/google/go-github/v82/github"
+	"github.com/google/go-github/v85/github"
 	"go.rgst.io/jaredallard/archives/v2"
 	"go.rgst.io/jaredallard/vcs/v2"
 	"go.rgst.io/jaredallard/vcs/v2/token"

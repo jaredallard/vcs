@@ -7,7 +7,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/google/go-cmp v0.7.0
-	github.com/google/go-github/v82 v82.0.0
+	github.com/google/go-github/v85 v85.0.0
 	github.com/pkg/errors v0.9.1
 	gitlab.com/gitlab-org/api/client-go v1.46.0
 	go.rgst.io/jaredallard/archives/v2 v2.0.0
