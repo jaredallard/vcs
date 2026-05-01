@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	code.gitea.io/sdk/gitea v0.24.1
-	github.com/Masterminds/semver/v3 v3.4.0
+	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-github/v85 v85.0.0
