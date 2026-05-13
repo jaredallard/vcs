@@ -3,7 +3,7 @@ module go.rgst.io/jaredallard/vcs/v2
 go 1.26
 
 require (
-	code.gitea.io/sdk/gitea v0.25.0
+	code.gitea.io/sdk/gitea v0.25.1
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/google/go-cmp v0.7.0
