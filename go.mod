@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	gitlab.com/gitlab-org/api/client-go v1.46.0
 	go.rgst.io/jaredallard/archives/v2 v2.1.0
-	go.rgst.io/jaredallard/cmdexec/v2 v2.0.0
+	go.rgst.io/jaredallard/cmdexec/v2 v2.1.0
 	golang.org/x/oauth2 v0.36.0
 	gotest.tools/v3 v3.5.2
 )
