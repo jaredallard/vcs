@@ -14,14 +14,15 @@ import (
 	"strings"
 
 	"go.rgst.io/jaredallard/cmdexec/v2"
-	"go.rgst.io/jaredallard/vcs/v2/internal/execerr"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3/internal/execerr"
+	"go.rgst.io/jaredallard/vcs/v3/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/generic"
 )
 
 // Providers is a list of providers that can be used to retrieve a
 // token for Github.
 var Providers = []shared.Provider{
-	&shared.EnvProvider{EnvVars: []shared.EnvVar{{Name: "GITHUB_TOKEN"}, {Name: "GH_TOKEN"}}},
+	&generic.EnvProvider{EnvVars: []generic.EnvVar{{Name: "GITHUB_TOKEN"}, {Name: "GH_TOKEN"}}},
 	&GHProvider{},
 }
 

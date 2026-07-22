@@ -24,8 +24,8 @@ import (
 	giturls "github.com/chainguard-dev/git-urls"
 	"github.com/google/go-github/v85/github"
 	"go.rgst.io/jaredallard/archives/v2"
-	"go.rgst.io/jaredallard/vcs/v2"
-	"go.rgst.io/jaredallard/vcs/v2/token"
+	"go.rgst.io/jaredallard/vcs/v3"
+	"go.rgst.io/jaredallard/vcs/v3/token"
 )
 
 // cloneArchive is the same as [Clone] but uses the Provider API to
@@ -37,9 +37,7 @@ func cloneArchive(ctx context.Context, vcsp vcs.Provider, ref, sourceURL, tempDi
 		return "", err
 	}
 
-	t, err := token.Fetch(ctx, vcsp, false, &token.Options{
-		AllowUnauthenticated: true,
-	})
+	t, err := token.Fetch(ctx, vcsp, &token.Options{AllowUnauthenticated: true})
 	if err != nil {
 		return "", fmt.Errorf("failed to get github token for archive fetch: %w", err)
 	}

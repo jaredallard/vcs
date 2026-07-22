@@ -23,8 +23,8 @@ import (
 
 	"github.com/pkg/errors"
 	"go.rgst.io/jaredallard/cmdexec/v2"
-	"go.rgst.io/jaredallard/vcs/v2"
-	"go.rgst.io/jaredallard/vcs/v2/internal/execerr"
+	"go.rgst.io/jaredallard/vcs/v3"
+	"go.rgst.io/jaredallard/vcs/v3/internal/execerr"
 )
 
 // This block contains errors and regexes

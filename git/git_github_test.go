@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"go.rgst.io/jaredallard/vcs/v2"
+	"go.rgst.io/jaredallard/vcs/v3"
 	"gotest.tools/v3/assert"
 )
 

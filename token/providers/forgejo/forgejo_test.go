@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"go.rgst.io/jaredallard/cmdexec/v2"
-	"go.rgst.io/jaredallard/vcs/v2/token"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/forgejo"
+	"go.rgst.io/jaredallard/vcs/v3/token"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/forgejo"
 	"gotest.tools/v3/assert"
 )
 

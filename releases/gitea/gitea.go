@@ -20,9 +20,9 @@ import (
 	"strings"
 
 	"code.gitea.io/sdk/gitea"
-	"go.rgst.io/jaredallard/vcs/v2/internal/fileinfo"
-	"go.rgst.io/jaredallard/vcs/v2/releases/internal/opts"
-	"go.rgst.io/jaredallard/vcs/v2/token"
+	"go.rgst.io/jaredallard/vcs/v3/internal/fileinfo"
+	"go.rgst.io/jaredallard/vcs/v3/releases/internal/opts"
+	"go.rgst.io/jaredallard/vcs/v3/token"
 )
 
 // _ is a compile-time assertion that Fetcher implements the

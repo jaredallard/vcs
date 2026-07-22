@@ -16,8 +16,8 @@ import (
 	"os"
 	"runtime"
 
-	"go.rgst.io/jaredallard/vcs/v2/releases"
-	"go.rgst.io/jaredallard/vcs/v2/resolver"
+	"go.rgst.io/jaredallard/vcs/v3/releases"
+	"go.rgst.io/jaredallard/vcs/v3/resolver"
 )
 
 // main downloads a release of stencil from Github to the local

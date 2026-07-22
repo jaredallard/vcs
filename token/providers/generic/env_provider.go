@@ -6,11 +6,13 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package shared
+package generic
 
 import (
 	"fmt"
 	"os"
+
+	"go.rgst.io/jaredallard/vcs/v3/token/internal/shared"
 )
 
 // EnvVar is a struct that represents an environment variable that can
@@ -31,10 +33,10 @@ type EnvProvider struct {
 }
 
 // Token returns a valid token or an error if no token is found.
-func (p *EnvProvider) Token() (*Token, error) {
+func (p *EnvProvider) Token() (*shared.Token, error) {
 	for _, env := range p.EnvVars {
 		if token := os.Getenv(env.Name); token != "" {
-			return &Token{
+			return &shared.Token{
 				Value:  token,
 				Source: fmt.Sprintf("environment variable (%s)", env.Name),
 				Type:   env.Type,

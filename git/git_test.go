@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"go.rgst.io/jaredallard/vcs/v2/git"
+	"go.rgst.io/jaredallard/vcs/v3/git"
 	"gotest.tools/v3/assert"
 )
 

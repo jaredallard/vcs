@@ -14,8 +14,9 @@ import (
 	"strings"
 
 	"go.rgst.io/jaredallard/cmdexec/v2"
-	"go.rgst.io/jaredallard/vcs/v2/internal/execerr"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3/internal/execerr"
+	"go.rgst.io/jaredallard/vcs/v3/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/generic"
 )
 
 // Contains the different types of tokens that can be retrieved.
@@ -33,7 +34,7 @@ var Providers = []shared.Provider{
 
 // envProvider returns a [shared.EnvProvider] configured for Gitlab.
 func envProvider() shared.Provider {
-	return &shared.EnvProvider{EnvVars: []shared.EnvVar{
+	return &generic.EnvProvider{EnvVars: []generic.EnvVar{
 		{Name: "GITLAB_TOKEN"},
 		{Name: "CI_JOB_TOKEN", Type: TokenTypeJob},
 	}}

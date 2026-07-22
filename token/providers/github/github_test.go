@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"go.rgst.io/jaredallard/cmdexec/v2"
-	"go.rgst.io/jaredallard/vcs/v2/token"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/github"
+	"go.rgst.io/jaredallard/vcs/v3/token"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/github"
 	"gotest.tools/v3/assert"
 )
 

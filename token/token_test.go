@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"go.rgst.io/jaredallard/vcs/v2"
-	"go.rgst.io/jaredallard/vcs/v2/token"
+	"go.rgst.io/jaredallard/vcs/v3"
+	"go.rgst.io/jaredallard/vcs/v3/token"
 	"gotest.tools/v3/assert"
 )
 
@@ -23,7 +23,7 @@ var ignoreTime = cmp.Comparer(func(_, _ time.Time) bool {
 // provider to get the token.
 func TestCanGetToken(t *testing.T) {
 	t.Setenv("GITHUB_TOKEN", time.Now().String())
-	authToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false)
+	authToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, nil)
 	assert.NilError(t, err)
 	assert.Assert(t, authToken != nil, "expected a token to be returned")
 	assert.DeepEqual(t, authToken, &token.Token{
@@ -38,7 +38,7 @@ func TestCanGetCachedToken(t *testing.T) {
 	bfalse := false
 	t.Setenv("GITHUB_TOKEN", time.Now().String())
 
-	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false, &token.Options{UseGlobalCache: &bfalse})
+	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, &token.Options{UseGlobalCache: &bfalse})
 	assert.NilError(t, err)
 	assert.Assert(t, originalToken != nil, "expected a token to be returned")
 	assert.DeepEqual(t, originalToken, &token.Token{
@@ -48,7 +48,7 @@ func TestCanGetCachedToken(t *testing.T) {
 	assert.Equal(t, originalToken.FetchedAt.IsZero(), false) // should not be zero
 
 	// Fetch again, should return the same token.
-	newToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false)
+	newToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, nil)
 	assert.NilError(t, err)
 	assert.Assert(t, newToken != nil, "expected a token to be returned")
 	assert.DeepEqual(t, newToken, &token.Token{

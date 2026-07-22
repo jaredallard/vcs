@@ -13,7 +13,7 @@ and downloading releases.
 
 ## Documentation
 
-See [pkg.go.dev](https://pkg.go.dev/go.rgst.io/jaredallard/vcs/v2)
+See [pkg.go.dev](https://pkg.go.dev/go.rgst.io/jaredallard/vcs/v3)
 
 ## License
 

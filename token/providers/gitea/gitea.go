@@ -10,11 +10,12 @@
 package gitea
 
 import (
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/generic"
 )
 
 // Providers is a list of providers that can be used to retrieve a
 // token for Gitea.
 var Providers = []shared.Provider{
-	&shared.EnvProvider{EnvVars: []shared.EnvVar{{Name: "GITEA_TOKEN"}}},
+	&generic.EnvProvider{EnvVars: []generic.EnvVar{{Name: "GITEA_TOKEN"}}},
 }

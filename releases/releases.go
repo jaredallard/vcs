@@ -18,12 +18,12 @@ import (
 	"io"
 	"io/fs"
 
-	"go.rgst.io/jaredallard/vcs/v2"
-	"go.rgst.io/jaredallard/vcs/v2/releases/gitea"
-	"go.rgst.io/jaredallard/vcs/v2/releases/github"
-	"go.rgst.io/jaredallard/vcs/v2/releases/gitlab"
-	"go.rgst.io/jaredallard/vcs/v2/releases/internal/opts"
-	"go.rgst.io/jaredallard/vcs/v2/token"
+	"go.rgst.io/jaredallard/vcs/v3"
+	"go.rgst.io/jaredallard/vcs/v3/releases/gitea"
+	"go.rgst.io/jaredallard/vcs/v3/releases/github"
+	"go.rgst.io/jaredallard/vcs/v3/releases/gitlab"
+	"go.rgst.io/jaredallard/vcs/v3/releases/internal/opts"
+	"go.rgst.io/jaredallard/vcs/v3/token"
 )
 
 // fetchers is a map of VCS provider to their respective fetcher.
@@ -67,7 +67,7 @@ func Fetch(ctx context.Context, opts *FetchOptions) (io.ReadCloser, fs.FileInfo,
 		return nil, nil, fmt.Errorf("failed to get VCS provider from URL: %w", err)
 	}
 
-	token, err := token.Fetch(ctx, vcsp, true)
+	token, err := token.Fetch(ctx, vcsp, &token.Options{AllowUnauthenticated: true})
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to fetch token: %w", err)
 	}
@@ -98,7 +98,7 @@ func GetReleaseNotes(ctx context.Context, opt *GetReleaseNoteOptions) (string, e
 		return "", fmt.Errorf("failed to get VCS provider from URL: %w", err)
 	}
 
-	t, err := token.Fetch(ctx, vcsp, true)
+	t, err := token.Fetch(ctx, vcsp, &token.Options{AllowUnauthenticated: true})
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch token: %w", err)
 	}

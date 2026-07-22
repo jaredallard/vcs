@@ -2,14 +2,12 @@ package shared_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
 	"go.rgst.io/jaredallard/cmdexec/v2"
-	"go.rgst.io/jaredallard/vcs/v2"
-	"go.rgst.io/jaredallard/vcs/v2/token"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3"
+	"go.rgst.io/jaredallard/vcs/v3/token"
 	"gotest.tools/v3/assert"
 )
 
@@ -26,24 +24,12 @@ func clearHostToken(t *testing.T, newValue string) {
 	t.Setenv("GITHUB_TOKEN", newValue)
 }
 
-func TestEnvProviderReadsCorrectEnvVar(t *testing.T) {
-	t.Setenv(t.Name(), "token")
-
-	p := &shared.EnvProvider{EnvVars: []shared.EnvVar{{Name: t.Name()}}}
-	tok, err := p.Token()
-	assert.NilError(t, err)
-	assert.DeepEqual(t, &shared.Token{
-		Source: fmt.Sprintf("environment variable (%s)", t.Name()),
-		Value:  "token",
-	}, tok)
-}
-
 // TestCloneClonesAllAttributes ensures that Clone returns a new token
 // with the same attributes as the original token.
 func TestCloneClonesAllAttributes(t *testing.T) {
 	t.Setenv("GITHUB_TOKEN", time.Now().String())
 
-	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false, &token.Options{
+	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, &token.Options{
 		UseGlobalCache: &bfalse,
 	})
 	assert.NilError(t, err)
@@ -56,7 +42,7 @@ func TestCloneClonesAllAttributes(t *testing.T) {
 func TestStringRedacts(t *testing.T) {
 	clearHostToken(t, "token-xyz")
 
-	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false, &token.Options{
+	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, &token.Options{
 		UseGlobalCache: &bfalse,
 	})
 	assert.NilError(t, err)
@@ -68,7 +54,7 @@ func TestStringRedacts(t *testing.T) {
 func TestIsUnauthenticatedDetectsEmptyToken(t *testing.T) {
 	clearHostToken(t, "")
 
-	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, false, &token.Options{
+	originalToken, err := token.Fetch(context.Background(), vcs.ProviderGithub, &token.Options{
 		AllowUnauthenticated: true,
 		UseGlobalCache:       &bfalse,
 	})

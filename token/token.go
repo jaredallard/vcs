@@ -12,16 +12,15 @@ package token
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
-	"go.rgst.io/jaredallard/vcs/v2"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/forgejo"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/gitea"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/github"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/gitlab"
-	"go.rgst.io/jaredallard/vcs/v2/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3"
+	"go.rgst.io/jaredallard/vcs/v3/token/internal/shared"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/forgejo"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/gitea"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/github"
+	"go.rgst.io/jaredallard/vcs/v3/token/providers/gitlab"
 )
 
 // defaultProviders contains all of the providers that are supported by
@@ -37,24 +36,14 @@ var defaultProviders = map[vcs.Provider][]shared.Provider{
 // allow for easy access to the type.
 type Token = shared.Token
 
-// ErrNoToken is returned when no token is found in the configured
-// credential providers.
-type ErrNoToken []error
-
-// Unwrap returns the errors that caused the ErrNoToken error.
-func (errs ErrNoToken) Unwrap() []error {
-	return errs
-}
-
-// Error returns the error message for ErrNoToken.
-func (errs ErrNoToken) Error() string {
-	return errors.Join(errs...).Error()
-}
+// Provider is an interface implemented by providers that return a
+// [Token].
+type Provider = shared.Provider
 
 // Options contains options for the [Fetch] function.
 type Options struct {
 	// AllowUnauthenticated allows for an empty token to be returned if
-	// no token is found.
+	// no token is found. Defaults to false.
 	AllowUnauthenticated bool
 
 	// UseGlobalCache allows for the use of a global cache for tokens. If
@@ -69,40 +58,38 @@ type Options struct {
 	UseGlobalCache *bool
 }
 
+// RegisterProvider sets the provided [Provider] implementations for the
+// provided [vcs.Provider].
+//
+// Note: This REPLACES the existing providers, it is not additive. Also
+// note that this mutates the global provider list and thus has
+// side-effects. It should normally be used only when there is a custom
+// provider required or potentially for test/mocking use-cases.
+func RegisterProvider(vcsp vcs.Provider, p []Provider) error {
+	defaultProviders[vcsp] = p
+	return nil // for future usage
+}
+
+// applyDefaults applies defaults to the provided options.
+func applyDefaults(opts *Options) {
+	// If UseGlobalCache is not set, default to true.
+	if opts.UseGlobalCache == nil {
+		opts.UseGlobalCache = new(true)
+	}
+}
+
 // Fetch returns a valid token from one of the configured credential
 // providers. If no token is found, ErrNoToken is returned.
-//
-// allowUnauthenticated is DEPRECATED and will be removed in a future
-// release. Use the Options struct instead, setting AllowUnauthenticated
-// to true/false.
-//
-// optss is a variadic argument only to avoid a breaking change. Only
-// one option struct is allowed, an error will be returned if more than
-// one is provided.
-func Fetch(_ context.Context, vcsp vcs.Provider, allowUnauthenticated bool, optss ...*Options) (*shared.Token, error) {
+func Fetch(_ context.Context, vcsp vcs.Provider, opts *Options) (*shared.Token, error) {
 	if _, ok := defaultProviders[vcsp]; !ok {
 		return nil, fmt.Errorf("unknown VCS provider %q", vcsp)
 	}
 
-	var opts Options
-	if len(optss) == 1 {
-		if optss[0] != nil {
-			opts = *optss[0]
-		}
-	} else if len(optss) > 1 {
-		return nil, fmt.Errorf("too many options provided")
+	if opts == nil {
+		opts = &Options{}
 	}
 
-	// Support the older API.
-	if allowUnauthenticated {
-		opts.AllowUnauthenticated = true
-	}
-
-	// If UseGlobalCache is not set, default to true.
-	if opts.UseGlobalCache == nil {
-		b := true
-		opts.UseGlobalCache = &b
-	}
+	applyDefaults(opts)
 
 	if *opts.UseGlobalCache {
 		t, ok := cache.Get(vcsp)
@@ -112,7 +99,7 @@ func Fetch(_ context.Context, vcsp vcs.Provider, allowUnauthenticated bool, opts
 	}
 
 	var token *shared.Token
-	errs := []error{}
+	var errs []error
 	for _, p := range defaultProviders[vcsp] {
 		var err error
 
