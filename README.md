@@ -17,4 +17,4 @@ See [pkg.go.dev](https://pkg.go.dev/go.rgst.io/jaredallard/vcs/v2)
 
 ## License
 
-LGPL-3.0
+MPL-2.0
