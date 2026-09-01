@@ -28,7 +28,7 @@ var signedInRegexp = regexp.MustCompile(`currently signed in to (.*)@(.*)$`)
 // Providers is a list of providers that can be used to retrieve a
 // token for Forgejo.
 var Providers = []shared.Provider{
-	&generic.EnvProvider{EnvVars: []generic.EnvVar{{Name: "FORGEJO_TOKEM"}}},
+	&generic.EnvProvider{EnvVars: []generic.EnvVar{{Name: "FORGEJO_TOKEN"}}},
 	&FJProvider{},
 }
 
