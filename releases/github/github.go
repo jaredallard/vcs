@@ -19,11 +19,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	gogithub "github.com/google/go-github/v85/github"
+	gogithub "github.com/google/go-github/v90/github"
 	"go.rgst.io/jaredallard/vcs/v3/internal/fileinfo"
 	"go.rgst.io/jaredallard/vcs/v3/releases/internal/opts"
 	"go.rgst.io/jaredallard/vcs/v3/token"
-	"golang.org/x/oauth2"
 )
 
 // _ is a compile-time assertion that Fetcher implements the
@@ -62,17 +61,20 @@ func getOrgRepoFromURL(urlStr string) (owner, repo string, err error) {
 }
 
 // createClient creates a Github client
-func (f *Fetcher) createClient(ctx context.Context, t *token.Token) *gogithub.Client {
-	httpClient := http.DefaultClient
+func (f *Fetcher) createClient(ctx context.Context, t *token.Token) (*gogithub.Client, error) {
+	var gops []gogithub.ClientOptionsFunc
 	if !t.IsUnauthenticated() {
-		httpClient = oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: t.Value}))
+		gops = append(gops, gogithub.WithAuthToken(t.Value))
 	}
-	return gogithub.NewClient(httpClient)
+	return gogithub.NewClient(gops...)
 }
 
 // GetReleaseNotes returns the release notes for a given tag
 func (f *Fetcher) GetReleaseNotes(ctx context.Context, t *token.Token, opt *opts.GetReleaseNoteOptions) (string, error) {
-	gh := f.createClient(ctx, t)
+	gh, err := f.createClient(ctx, t)
+	if err != nil {
+		return "", fmt.Errorf("failed to create github client: %w", err)
+	}
 	friendlyRepo := strings.TrimPrefix(opt.RepoURL, "https://")
 
 	org, repo, err := getOrgRepoFromURL(opt.RepoURL)
@@ -91,7 +93,10 @@ func (f *Fetcher) GetReleaseNotes(ctx context.Context, t *token.Token, opt *opts
 // Fetch fetches a release from a github repository and the underlying
 // release asset.
 func (f *Fetcher) Fetch(ctx context.Context, t *token.Token, opt *opts.FetchOptions) (io.ReadCloser, os.FileInfo, error) {
-	gh := f.createClient(ctx, t)
+	gh, err := f.createClient(ctx, t)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create github client: %w", err)
+	}
 
 	friendlyRepo := strings.TrimPrefix(opt.RepoURL, "https://")
 

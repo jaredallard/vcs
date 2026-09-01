@@ -22,7 +22,7 @@ import (
 
 	"code.gitea.io/sdk/gitea"
 	giturls "github.com/chainguard-dev/git-urls"
-	"github.com/google/go-github/v85/github"
+	"github.com/google/go-github/v90/github"
 	"go.rgst.io/jaredallard/archives/v2"
 	"go.rgst.io/jaredallard/vcs/v3"
 	"go.rgst.io/jaredallard/vcs/v3/token"
@@ -51,9 +51,14 @@ func cloneArchive(ctx context.Context, vcsp vcs.Provider, ref, sourceURL, tempDi
 	var body io.ReadCloser
 	switch vcsp { //nolint:exhaustive // Why: see default
 	case vcs.ProviderGithub:
-		gh := github.NewClient(nil)
+		var gops []github.ClientOptionsFunc
 		if !t.IsUnauthenticated() {
-			gh = gh.WithAuthToken(t.Value)
+			gops = append(gops, github.WithAuthToken(t.Value))
+		}
+
+		gh, err := github.NewClient(gops...)
+		if err != nil {
+			return "", fmt.Errorf("failed to create github client: %w", err)
 		}
 
 		rc, _, err := gh.Repositories.GetArchiveLink(ctx, owner, repo, github.Tarball, &github.RepositoryContentGetOptions{
@@ -63,12 +68,12 @@ func cloneArchive(ctx context.Context, vcsp vcs.Provider, ref, sourceURL, tempDi
 			return "", fmt.Errorf("failed to get archive link: %w", err)
 		}
 
-		req, err := gh.NewRequest(http.MethodGet, rc.String(), http.NoBody)
+		req, err := gh.NewRequest(ctx, http.MethodGet, rc.String(), http.NoBody)
 		if err != nil {
 			return "", fmt.Errorf("failed to download archive: %w", err)
 		}
 
-		resp, err := gh.BareDo(ctx, req)
+		resp, err := gh.BareDo(req)
 		if err != nil {
 			return "", fmt.Errorf("failed to download archive: %w", err)
 		}
