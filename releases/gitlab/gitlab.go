@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	gogitlab "gitlab.com/gitlab-org/api/client-go"
+	gogitlab "gitlab.com/gitlab-org/api/client-go/v2"
 	"go.rgst.io/jaredallard/vcs/v3/internal/fileinfo"
 	"go.rgst.io/jaredallard/vcs/v3/releases/internal/opts"
 	"go.rgst.io/jaredallard/vcs/v3/token"
