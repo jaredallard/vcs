@@ -22,7 +22,7 @@ import (
 
 	"code.gitea.io/sdk/gitea"
 	giturls "github.com/chainguard-dev/git-urls"
-	"github.com/google/go-github/v90/github"
+	"github.com/google/go-github/v91/github"
 	"go.rgst.io/jaredallard/archives/v2"
 	"go.rgst.io/jaredallard/vcs/v3"
 	"go.rgst.io/jaredallard/vcs/v3/token"

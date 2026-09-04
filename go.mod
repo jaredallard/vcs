@@ -1,13 +1,13 @@
 module go.rgst.io/jaredallard/vcs/v3
 
-go 1.26
+go 1.26.0
 
 require (
 	code.gitea.io/sdk/gitea v0.25.1
 	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/chainguard-dev/git-urls v1.0.2
 	github.com/google/go-cmp v0.7.0
-	github.com/google/go-github/v90 v90.0.0
+	github.com/google/go-github/v91 v91.0.0
 	github.com/pkg/errors v0.9.1
 	gitlab.com/gitlab-org/api/client-go/v2 v2.62.0
 	go.rgst.io/jaredallard/archives/v2 v2.1.0

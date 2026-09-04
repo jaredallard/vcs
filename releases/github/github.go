@@ -19,7 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	gogithub "github.com/google/go-github/v90/github"
+	gogithub "github.com/google/go-github/v91/github"
 	"go.rgst.io/jaredallard/vcs/v3/internal/fileinfo"
 	"go.rgst.io/jaredallard/vcs/v3/releases/internal/opts"
 	"go.rgst.io/jaredallard/vcs/v3/token"
