@@ -41,8 +41,8 @@ github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWD
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 github.com/ulikunitz/xz v0.5.16 h1:ld6NyySjx5lowVKwJvMRLnW5nxKX/xnpSiFYZ/Lxur0=
 github.com/ulikunitz/xz v0.5.16/go.mod h1:H9Rt/W6/Qj27PGauhQc6nfCDy7vHpzsOThBSaYDoEhw=
-gitlab.com/gitlab-org/api/client-go/v2 v2.62.0 h1:FOSaRwz5feHGhJDo4Yk+TLqF4e6cO3Qm4R929hQqUII=
-gitlab.com/gitlab-org/api/client-go/v2 v2.62.0/go.mod h1:LEVRH0wDbXtvsM7WAGlOgR10HCHCol1rZyjWoSeicuY=
+gitlab.com/gitlab-org/api/client-go/v2 v2.63.0 h1:lPZsGn8oISRd/ReeTI4OuHXWO1UXg9fPkLz5/JxK4lA=
+gitlab.com/gitlab-org/api/client-go/v2 v2.63.0/go.mod h1:a8PSqY/h53boJ6FvWTJZH888tdpcj+n2hVUo2NsOi/E=
 go.rgst.io/jaredallard/archives/v2 v2.1.0 h1:dm9ELZXkXcEsqElHoFhv3Jg9g8kbx3NCTwiEGIAA40Y=
 go.rgst.io/jaredallard/archives/v2 v2.1.0/go.mod h1:Zk6IDsstrN4h/gG5nF7HROy+TFvjBtI2KFmnvYvAQJ8=
 go.rgst.io/jaredallard/cmdexec/v2 v2.1.0 h1:H1Rj378sctYnBCEpnJ5tffok+Tr0nVxyVJ2h5D06IhA=
