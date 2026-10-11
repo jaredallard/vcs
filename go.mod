@@ -10,7 +10,7 @@ require (
 	github.com/google/go-github/v92 v92.0.0
 	github.com/pkg/errors v0.9.1
 	gitlab.com/gitlab-org/api/client-go/v3 v3.17.0
-	go.rgst.io/jaredallard/archives/v2 v2.1.0
+	go.rgst.io/jaredallard/archives/v2 v2.3.0
 	go.rgst.io/jaredallard/cmdexec/v2 v2.1.0
 	gotest.tools/v3 v3.5.2
 )
@@ -24,10 +24,10 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
 	github.com/hashicorp/go-version v1.9.0 // indirect
 	github.com/jamespfennell/xz v0.1.2 // indirect
-	github.com/klauspost/compress v1.19.2 // indirect
-	github.com/ulikunitz/xz v0.5.16 // indirect
+	github.com/klauspost/compress v1.20.1 // indirect
+	github.com/ulikunitz/xz v0.5.17 // indirect
 	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 )
