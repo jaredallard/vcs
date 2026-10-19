@@ -9,7 +9,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-github/v93 v93.0.0
 	github.com/pkg/errors v0.9.1
-	gitlab.com/gitlab-org/api/client-go/v3 v3.25.0
+	gitlab.com/gitlab-org/api/client-go/v3 v3.29.0
 	go.rgst.io/jaredallard/archives/v2 v2.3.0
 	go.rgst.io/jaredallard/cmdexec/v2 v2.1.0
 	gotest.tools/v3 v3.5.2
@@ -29,5 +29,5 @@ require (
 	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/time v0.15.0 // indirect
+	golang.org/x/time v0.16.0 // indirect
 )
