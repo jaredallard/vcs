@@ -11,6 +11,10 @@ import (
 )
 
 func TestFetch(t *testing.T) {
+	// Ensure Forgejo access is unauthenticated, CI sets a FORGEJO_TOKEN
+	// that is scoped to only the current repository.
+	t.Setenv("FORGEJO_TOKEN", "")
+
 	type args struct {
 		opts *FetchOptions
 	}

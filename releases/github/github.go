@@ -61,7 +61,7 @@ func getOrgRepoFromURL(urlStr string) (owner, repo string, err error) {
 }
 
 // createClient creates a Github client
-func (f *Fetcher) createClient(ctx context.Context, t *token.Token) (*gogithub.Client, error) {
+func (f *Fetcher) createClient(t *token.Token) (*gogithub.Client, error) {
 	var gops []gogithub.ClientOptionsFunc
 	if !t.IsUnauthenticated() {
 		gops = append(gops, gogithub.WithAuthToken(t.Value))
@@ -71,7 +71,7 @@ func (f *Fetcher) createClient(ctx context.Context, t *token.Token) (*gogithub.C
 
 // GetReleaseNotes returns the release notes for a given tag
 func (f *Fetcher) GetReleaseNotes(ctx context.Context, t *token.Token, opt *opts.GetReleaseNoteOptions) (string, error) {
-	gh, err := f.createClient(ctx, t)
+	gh, err := f.createClient(t)
 	if err != nil {
 		return "", fmt.Errorf("failed to create github client: %w", err)
 	}
@@ -93,7 +93,7 @@ func (f *Fetcher) GetReleaseNotes(ctx context.Context, t *token.Token, opt *opts
 // Fetch fetches a release from a github repository and the underlying
 // release asset.
 func (f *Fetcher) Fetch(ctx context.Context, t *token.Token, opt *opts.FetchOptions) (io.ReadCloser, os.FileInfo, error) {
-	gh, err := f.createClient(ctx, t)
+	gh, err := f.createClient(t)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create github client: %w", err)
 	}
