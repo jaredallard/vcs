@@ -91,11 +91,18 @@ type CloneOptions struct {
 // optss is a variadic argument only to avoid a breaking change. Only
 // one option struct is allowed, an error will be returned if more than
 // one is provided.
-func Clone(ctx context.Context, ref, url string, optss ...*CloneOptions) (string, error) {
-	tempDir, err := os.MkdirTemp("", strings.ReplaceAll(url, "/", "-"))
+func Clone(ctx context.Context, ref, url string, optss ...*CloneOptions) (_ string, retErr error) {
+	tempDir, err := os.MkdirTemp("", strings.ReplaceAll(redactURL(url), "/", "-"))
 	if err != nil {
-		return "", errors.Wrap(err, "failed to create temporary directory")
+		return "", redactErr(errors.Wrap(err, "failed to create temporary directory"), url)
 	}
+
+	// Remove the temporary directory if we fail to clone.
+	defer func() {
+		if retErr != nil {
+			os.RemoveAll(tempDir) //nolint:errcheck,gosec // Why: Best effort.
+		}
+	}()
 
 	// Read opts from the variadic argument. We use a variadic argument
 	// here to avoid a breaking change when this variable was added.
@@ -134,10 +141,10 @@ func Clone(ctx context.Context, ref, url string, optss ...*CloneOptions) (string
 		if err := c.Run(); err != nil {
 			var execErr *exec.ExitError
 			if errors.As(err, &execErr) {
-				return "", fmt.Errorf("failed to run %q (%w): %s", cmd, err, string(execErr.Stderr))
+				return "", redactErr(fmt.Errorf("failed to run %q (%w): %s", cmd, err, string(execErr.Stderr)), url)
 			}
 
-			return "", fmt.Errorf("failed to run %q: %w", cmd, err)
+			return "", redactErr(fmt.Errorf("failed to run %q: %w", cmd, err), url)
 		}
 	}
 
@@ -150,7 +157,7 @@ func ListRemote(ctx context.Context, remote string) ([][]string, error) {
 	cmd := gitCommand(ctx, "ls-remote", remote)
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get remote branches: %w", execerr.From(err))
+		return nil, redactErr(fmt.Errorf("failed to get remote branches: %w", execerr.From(err)), remote)
 	}
 
 	remotes := make([][]string, 0)
