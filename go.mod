@@ -9,7 +9,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-github/v93 v93.0.0
 	github.com/pkg/errors v0.9.1
-	gitlab.com/gitlab-org/api/client-go/v3 v3.33.0
+	gitlab.com/gitlab-org/api/client-go/v3 v3.34.0
 	go.rgst.io/jaredallard/archives/v2 v2.4.0
 	go.rgst.io/jaredallard/cmdexec/v2 v2.1.0
 	gotest.tools/v3 v3.5.2
